@@ -68,7 +68,7 @@ create_service keystone identity "OpenStack Identity" ${PUBLIC_URL} ${INTERNAL_U
 
 # Openrc file
 info "Creating admin openrc file"
-cat<<EOF>>/home/vagrant/openrc_admin
+cat<< EOF >>/home/vagrant/openrc_admin
 #!/bin/sh
 export LC_ALL=C
 export OS_NO_CACHE='true'

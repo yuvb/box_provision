@@ -19,7 +19,7 @@ apt-get install -y glance python-glanceclient
 
 for config_file in "/etc/glance/glance-api.conf" "/etc/glance/glance-registry.conf"
 do
-  if [[ 'grizzly' = ${OPENSTACK_VERSION} ]]
+  if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
   then
     crudini --set ${config_file} DEFAULT sql_connection "mysql://${DB_USER}:${DB_PASSWORD}@${MGMT_IP}/glance"
   else
@@ -46,7 +46,7 @@ rm -f /var/lib/glance/glance.sqlite
 
 # Upload images
 glance_image_id=$(get_id glance image-create --name ${IMAGE_NAME} --file "/vagrant/images/${IMAGE_NAME}.img" --disk-format qcow2 --container-format bare --is-public True)
-local result=$(glance image-list | awk -v image_id=${glance_image_id} '$0 ~ image_id {print $12}')
+result=$(glance image-list | awk -v image_id=${glance_image_id} '$0 ~ image_id {print $12}')
 if [[ ${result} == 'active' ]]
 then
   info "Image ${name} has been uploaded to glance with Id ${glance_image_id}"

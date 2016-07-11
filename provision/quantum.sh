@@ -5,7 +5,6 @@ source /vagrant/provision/functions.sh
 source /vagrant/provision/vars.sh
 source /home/vagrant/openrc_admin
 
-OPENSTACK_VERSION=$1
 PUBLIC_URL="http://${MGMT_IP}:9696"
 INTERNAL_URL=${PUBLIC_URL}
 NETWORK_SERVICE='quantum'

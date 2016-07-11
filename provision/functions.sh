@@ -9,27 +9,27 @@ function create_db(){
   info "Creating db ${db_name}"
   mysql -e "create database ${db_name};"
   local check_db=$(mysql -e "show databases;" | awk -v db_name=$db_name '$0 ~ db_name {print $1}')
-  if [[ ${check_db} == ${db_name} ]]
+  if [[ ${check_db} == "${db_name}" ]]
   then
     info "DB ${db_name} has been created successfully"
   else
     error "DB ${db_name} hasn't been created"
     exit 201
   fi
-  info "Granting permission for ${grant_user} on db ${db_name}"
+  info "Granting permissions for ${grant_user} on db ${db_name}"
   mysql << EOF
   GRANT ALL PRIVILEGES ON ${db_name}.* TO '${grant_user}'@'%' IDENTIFIED BY '${user_secret}' WITH GRANT OPTION;
 EOF
   if [[ $? ==  0 ]]
   then
-    info "Granted permishen for user ${grant_user} on db  ${db_name}"
+    info "Granted permissions for user ${grant_user} on db  ${db_name}"
   else
-    error "Coldn't grant permishen for user ${grant_user} on db  ${db_name}"
+    error "Couldn't grant permissions for user ${grant_user} on db  ${db_name}"
   fi
 }
 
 function get_id (){
- echo $($@ | awk '/ id / { print $4 }')
+  echo "$("$@" | awk '/ id / { print $4 }')"
 }
 
 create_service(){
@@ -79,7 +79,7 @@ function wait_http_available(){
   local url=$1
   for ((i=1;i<=30;i++))
   do
-    if $(curl --output /dev/null --silent --head --fail ${url})
+    if (curl --output /dev/null --silent --head --fail ${url})
     then
       break
     fi
@@ -147,7 +147,7 @@ function check_openstack_services(){
       ;;
     esac
     info "Checking service ${service}"
-    if [[ ${services} == ${count} ]]
+    if [[ ${services} == "${count}" ]]
     then
       info "All ${services} services exist"
       break
@@ -165,7 +165,11 @@ function check_openstack_services(){
 
 function create_monit_script(){
   local service=$1
-  local script_folder='/etc/monit/scripts/'
+  local script_folder='/etc/monit/scripts'
+  local api_service='glance-api nova-api cinder-api keystone quantum-server neutron-server'
+  local protocol='HTTP'
+  local api_url=''
+  local status_code='200'
 
   if [[ ! -d ${script_folder} ]]
   then
@@ -176,33 +180,77 @@ function create_monit_script(){
     info "Folder ${script_folder} has been already created"
   fi
 
-  info "Creating the monit config file "${script_folder}check_${service}.sh""
+  info "Creating the monit config file "${script_folder}/check_${service}.sh""
+  if [[ ${api_service} =~ ${service} ]]
+  then
+    case $service in
+    nova-api)
+      api_url="http://${MGMT_IP}:8774/"
+      ;;
+    glance-api)
+      api_url="http://${MGMT_IP}:9292/"
+      status_code='300'
+      ;;
+    cinder-api)
+      api_url="http://${MGMT_IP}:8776/"
+      ;;
+    keystone)
+      api_url="http://${MGMT_IP}:35357/v2.0/"
+      ;;
+    quantum-server)
+      api_url="http://${MGMT_IP}:9696/"
+      ;;
+    neutron-server)
+      api_url="http://${MGMT_IP}:9696/"
+      ;;
+    esac
 
-cat<<EOF>>"${script_folder}check_${service}.sh"
+cat<< EOF >>"${script_folder}/check_${service}.sh"
+#!/bin/bash
+
+status_code=${status_code}
+api_url=${api_url}
+protocol='HTTP'
+EOF
+
+cat<< \EOF >>"${script_folder}/check_${service}.sh"
+check_code=$(curl -s -i ${api_url} | awk -v protocol=${protocol} '$0 ~ protocol {print $2}')
+if [[ ${check_code} == ${status_code} ]]
+then
+  exit 0
+else
+  exit 1
+fi
+EOF
+   
+  else
+cat<< EOF >>"${script_folder}/check_${service}.sh"
 #!/bin/bash
 
 /sbin/initctl list | grep ${service} | grep -v stop
 EOF
-
-  if [[ -s "${script_folder}check_${service}.sh" ]]
-  then
-    info "The monit config file "${script_folder}check_${service}.sh" has been created successfully"
-  else
-    error "The monit config file "${script_folder}check_${service}.sh" hasn't been created"
   fi
-  chmod 755 "${script_folder}check_${service}.sh"
+
+
+  if [[ -s "${script_folder}/check_${service}.sh" ]]
+  then
+    info "The monit config file "${script_folder}/check_${service}.sh" has been created successfully"
+  else
+    error "The monit config file "${script_folder}/check_${service}.sh" hasn't been created"
+  fi
+  chmod 755 "${script_folder}/check_${service}.sh"
 }
 
 function add_service_to_monit(){
   local service=$1
-  local script_folder='/etc/monit/scripts/'
+  local script_folder='/etc/monit/scripts'
   local monit_cfg='/etc/monit/monitrc'
   local cmd_service='/usr/sbin/service'
 
   info "Adding  the ${service} service to the monit config file"
   if [[ ${service} == 'rabbitmq-server' ]]
   then
-cat<<EOF>>${monit_cfg}
+cat<< EOF >>${monit_cfg}
   check process ${service} with pidfile /var/run/rabbitmq/pid
     start program = "${cmd_service} ${service} start"
     stop program = "${cmd_service} ${service} stop"
@@ -211,7 +259,7 @@ cat<<EOF>>${monit_cfg}
 EOF
   elif [[ ${service} == 'apache2' ]]
   then
-cat<<EOF>>${monit_cfg}
+cat<< EOF >>${monit_cfg}
   check process ${service} with pidfile /var/run/${service}.pid
     start program = "${cmd_service} ${service} start"
     stop program = "${cmd_service} ${service} stop"
@@ -220,7 +268,7 @@ cat<<EOF>>${monit_cfg}
 EOF
   elif [[ ${service} == 'mysql' ]]
   then
-cat<<EOF>>${monit_cfg}
+cat<< EOF >>${monit_cfg}
   check process ${service} with pidfile /var/run/mysqld/mysqld.pid
     start program = "${cmd_service} ${service} start"
     stop program = "${cmd_service} ${service} stop"
@@ -228,8 +276,8 @@ cat<<EOF>>${monit_cfg}
 
 EOF
   else
-cat<<EOF>>${monit_cfg}
-  check program ${service} with path "${script_folder}check_${service}.sh"
+cat<< EOF >>${monit_cfg}
+  check program ${service} with path "${script_folder}/check_${service}.sh"
     start program = "${cmd_service} ${service} start"
     stop program = "${cmd_service} ${service} stop"
     if status != 0 then restart

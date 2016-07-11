@@ -34,7 +34,7 @@ crudini --set ${NEUTRON_CFG} DEFAULT notification_driver neutron.openstack.commo
 crudini --set ${NEUTRON_CFG} DEFAULT notify_nova_on_port_status_changes True
 crudini --set ${NEUTRON_CFG} DEFAULT notify_nova_on_port_data_changes True
 crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_username ${SERVICE_USER_NAME}
-crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_tenant_id $(get_id keystone tenant-get service)
+crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_tenant_id "$(get_id keystone tenant-get service)"
 crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_password ${SERVICE_USER_PASSWORD}
 crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_auth_url "http://${MGMT_IP}:35357/v2.0"
 crudini --set ${NEUTRON_CFG} DEFAULT nova_region_name "${OS_REGION_NAME}"

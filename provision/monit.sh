@@ -26,7 +26,7 @@ cat<< EOF >>${MONIT_CFG}
 EOF
 
 
-if [[ 'grizzly' = ${OPENSTACK_VERSION} ]]
+if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
 then
   NETWORK_SERVICE='quantum'
 else
@@ -57,7 +57,7 @@ check_monit
 status=$(initctl list | grep ${CHECK_SERVICE} | awk '{print $2}')
 info "Now ${CHECK_SERVICE} service ${status}"
 
-if [[ ${status} =~ 'start' ]]
+if [[ ${status} =~ start ]]
 then
   info "Stoping ${CHECK_SERVICE}"
   service ${CHECK_SERVICE} stop
@@ -68,20 +68,20 @@ while [[ $i -lt 30 ]]
 do
   info "Waiting for ranning service ${service}"
   status=$(initctl list | grep ${CHECK_SERVICE} | awk '{print $2}')
-  if [[ ${status} =~ 'running' ]]
-    then
-      info "Service ${service} is running"
-      info "Monit is working"
-      break
-    fi
-    if [[ $i -eq 29 ]]
-    then
-      error "Service ${service} isn't running"
-      error "Monit isn't working"
-      exit 101
-    fi
-    sleep 3
-    let "i++"
+  if [[ ${status} =~ running ]]
+  then
+    info "Service ${service} is running"
+    info "Monit is working"
+    break
+  fi
+  if [[ $i -eq 29 ]]
+  then
+    error "Service ${service} isn't running"
+    error "Monit isn't working"
+    exit 101
+  fi
+  sleep 3
+  let "i++"
 done
 
 
