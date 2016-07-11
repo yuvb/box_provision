@@ -3,9 +3,9 @@
 source /vagrant/provision/logger.sh
 source /vagrant/provision/vars.sh
 
-EXPORT_SETTINGS='*(rw,sync,no_subtree_check)'
-EXPORT_ROOT='/var/exports'$
-EXPORT_CFG='/etc/exports'
+NFS_SETTINGS='*(rw,sync,no_subtree_check)'
+NFS_ROOT='/var/exports'
+NFS_CFG='/etc/exports'
 
 debug "Installing nfs service ..."
 
@@ -16,33 +16,39 @@ info "Packages have been updated"
 
 apt-get install -y nfs-kernel-server nfs-common
 
-mkdir -p ${EXPORT_ROOT}/cinder
-mkdir -p ${EXPORT_ROOT}/source
-mkdir -p ${EXPORT_ROOT}/destination
-mkdir -p ${EXPORT_ROOT}/grizzly{1..2}
-mkdir -p ${EXPORT_ROOT}/icehouse{1..2}
-mkdir -p ${EXPORT_ROOT}/juno{1..2}
+mkdir -p ${NFS_ROOT}/cinder
+mkdir -p ${NFS_ROOT}/source
+mkdir -p ${NFS_ROOT}/destination
+mkdir -p ${NFS_ROOT}/grizzly{1..2}
+mkdir -p ${NFS_ROOT}/icehouse{1..2}
+mkdir -p ${NFS_ROOT}/juno{1..2}
+
+# Adding cinder group and user
+useradd cinder
+usermod -G cinder cinder
 
 # Change owner
 info "Changing folder owner on cinder"
-for folder in $(ls ${EXPORT_ROOT})
+#for folder in $(ls ${NFS_ROOT})
+for folder in ${NFS_ROOT}/*
 do
-  chown -R cinder. ${EXPORT_ROOT}/${folder}
+  chown -R cinder. ${folder}
+  chmod 777 ${folder}
 done
 
 # Add to exports file
 
-cat<<EOF>>${EXPORT_CFG}
+cat<< EOF >>${NFS_CFG}
 
-${EXPORT_ROOT}/cinder ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/source ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/destination ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/grizzly1 ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/grizzly2 ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/icehouse1 ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/icehouse2 ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/juno1 ${EXPORT_SETTINGS}
-${EXPORT_ROOT}/juno2 ${EXPORT_SETTINGS}
+${NFS_ROOT}/cinder ${NFS_SETTINGS}
+${NFS_ROOT}/source ${NFS_SETTINGS}
+${NFS_ROOT}/destination ${NFS_SETTINGS}
+${NFS_ROOT}/grizzly1 ${NFS_SETTINGS}
+${NFS_ROOT}/grizzly2 ${NFS_SETTINGS}
+${NFS_ROOT}/icehouse1 ${NFS_SETTINGS}
+${NFS_ROOT}/icehouse2 ${NFS_SETTINGS}
+${NFS_ROOT}/juno1 ${NFS_SETTINGS}
+${NFS_ROOT}/juno2 ${NFS_SETTINGS}
 EOF
 
 info "Creating the NFS table that holds the exports"
