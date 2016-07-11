@@ -15,7 +15,7 @@ info "Changing monit config"
 info "Setting check services at 10 seconds intervals"
 sed -i 's/set daemon [0-9]*/set daemon 10/' ${MONIT_CFG}
 info "Setting http port and allowing users"
-cat<<EOF>>${MONIT_CFG}
+cat<< EOF >>${MONIT_CFG}
   set httpd port 2812 and
     use address localhost  # only accept connection from localhost
     allow localhost        # allow localhost to connect to the server and
@@ -68,7 +68,7 @@ while [[ $i -lt 30 ]]
 do
   info "Waiting for ranning service ${service}"
   status=$(initctl list | grep ${CHECK_SERVICE} | awk '{print $2}')
-  if [[ ${service_status} == 'running' ]]
+  if [[ ${status} =~ 'running' ]]
     then
       info "Service ${service} is running"
       info "Monit is working"

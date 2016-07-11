@@ -69,16 +69,12 @@ crudini --set ${CINDER_CFG} DEFAULT enabled_backends nfs1,nfs2
 for index in 1 2
 do
   crudini --set ${CINDER_CFG} nfs${index} volume_driver cinder.volume.drivers.nfs.NfsDriver
-  crudini --set ${CINDER_CFG} nfs${index} nfs_shares_config /etc/cinder/nfsshares${i}
+  crudini --set ${CINDER_CFG} nfs${index} nfs_shares_config /etc/cinder/nfsshares${index}
   crudini --set ${CINDER_CFG} nfs${index} nfs_mount_point_base /var/lib/cinder
   crudini --set ${CINDER_CFG} nfs${index} volume_backend_name nfs${index}
-done
-
 # NFS share
-for index in 1 2
-do
-cat<<EOF>>etc/cinder/nfsshares${index}
-192.168.1.10:/var/exports/${OPENSTACK_VERSION}${i}
+cat<< EOF >>"/etc/cinder/nfsshares${index}"
+192.168.1.10:/var/exports/${OPENSTACK_VERSION}${index}
 EOF
 done
 
