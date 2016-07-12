@@ -49,10 +49,10 @@ create_service cinder volume "OpenStack Volume Service" ${PUBLIC_URL} ${INTERNAL
 
 info "Modifying iscsi settings"
 # ISCSI
-sed -i 's/false/true/g' /etc/default/iscsitarget
 
 if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
 then
+  sed -i 's/false/true/g' /etc/default/iscsitarget
   for service in iscsitarget open-iscsi
   do
     restart_service ${service}

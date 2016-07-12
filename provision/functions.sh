@@ -259,8 +259,14 @@ cat<< EOF >>${monit_cfg}
 EOF
   elif [[ ${service} == 'apache2' ]]
   then
+    if [[ ${UBUNTU_VERSION} == '14.04' ]]
+    then
+      pidfile="/var/run/${service}/${service}.pid"
+    else
+      pidfile="/var/run/${service}.pid"
+    fi
 cat<< EOF >>${monit_cfg}
-  check process ${service} with pidfile /var/run/${service}.pid
+  check process ${service} with pidfile ${pidfile}
     start program = "${cmd_service} ${service} start"
     stop program = "${cmd_service} ${service} stop"
     if failed port 80 then restart

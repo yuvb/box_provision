@@ -52,8 +52,6 @@ done
 
 restart_service monit
 
-check_monit
-
 status=$(initctl list | grep ${CHECK_SERVICE} | awk '{print $2}')
 info "Now ${CHECK_SERVICE} service ${status}"
 
@@ -66,17 +64,17 @@ fi
 i=0
 while [[ $i -lt 30 ]]
 do
-  info "Waiting for ranning service ${service}"
+  info "Waiting for ranning service ${CHECK_SERVICE}"
   status=$(initctl list | grep ${CHECK_SERVICE} | awk '{print $2}')
   if [[ ${status} =~ running ]]
   then
-    info "Service ${service} is running"
+    info "Service ${CHECK_SERVICE} is running"
     info "Monit is working"
     break
   fi
   if [[ $i -eq 29 ]]
   then
-    error "Service ${service} isn't running"
+    error "Service ${CHECK_SERVICE} isn't running"
     error "Monit isn't working"
     exit 101
   fi

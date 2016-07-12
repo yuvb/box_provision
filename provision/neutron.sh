@@ -79,6 +79,13 @@ crudini --set ${METADATA_CFG} DEFAULT nova_metadata_ip ${MGMT_IP}
 crudini --set ${METADATA_CFG} DEFAULT nova_metadata_port 8775
 crudini --set ${METADATA_CFG} DEFAULT metadata_proxy_shared_secret ${METADATA_PROXY_SHARED_SECRET}
 
+if [[ ${OPENSTACK_VERSION} == 'juno' ]]
+then
+   LBAAS_AGENT_CFG='/etc/neutron/lbaas_agent.ini'
+   crudini --set ${LBAAS_AGENT_CFG} DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
+   crudini --set ${LBAAS_AGENT_CFG} DEFAULT ovs_use_veth False
+fi
+
 create_db ${NETWORK_SERVICE}
 
 if [[ ${OPENSTACK_VERSION} == 'juno' ]]
@@ -100,7 +107,6 @@ sysctl -p
 info "Creating openvswitch bridges"
 # Create openvswitch bridges
 restart_service openvswitch-switch
-ovs-vsctl add-br br-int
 ovs-vsctl add-br br-ex
 ovs-vsctl add-br br-ex2
 
