@@ -46,7 +46,6 @@ done
 
 for service in rabbitmq-server mysql apache2
 do
-#  create_monit_script ${service}
   add_service_to_monit ${service}
 done
 
@@ -57,7 +56,7 @@ info "Now ${CHECK_SERVICE} service ${status}"
 
 if [[ ${status} =~ start ]]
 then
-  info "Stoping ${CHECK_SERVICE}"
+  info "Stopping ${CHECK_SERVICE}"
   service ${CHECK_SERVICE} stop
 fi
 
@@ -76,7 +75,7 @@ do
   then
     error "Service ${CHECK_SERVICE} isn't running"
     error "Monit isn't working"
-    exit 101
+    exit 108
   fi
   sleep 3
   let "i++"

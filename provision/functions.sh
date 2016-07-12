@@ -14,7 +14,7 @@ function create_db(){
     info "DB ${db_name} has been created successfully"
   else
     error "DB ${db_name} hasn't been created"
-    exit 201
+    exit 107
   fi
   info "Granting permissions for ${grant_user} on db ${db_name}"
   mysql << EOF
@@ -86,7 +86,7 @@ function wait_http_available(){
     if [[ $i == 30 ]]
     then
       error "Service ${service} isn't running"
-      exit 101
+      exit 103
     fi
     sleep 1
   done
@@ -109,7 +109,7 @@ function restart_service(){
     if [[ $i == 29 ]]
     then
       error "Service ${service} isn't running"
-      exit 101
+      exit 104
     fi
     sleep 1
     let "i++"
@@ -155,7 +155,7 @@ function check_openstack_services(){
     if [[ $i -eq 29 ]]
     then
       error "Some ${service} services didn't start"
-      exit 103
+      exit 105
     fi
     sleep 1
     let "i++"

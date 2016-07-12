@@ -28,7 +28,7 @@ then
       info "Installing openstack ${OPENSTACK_VERSION} repository"
   else
     error "Openstack ${OPENSTACK_VERSION} repository hasn't been added"
-    exit 101
+    exit 102
   fi
   apt-get update
   apt-get upgrade -y
@@ -68,3 +68,4 @@ apt-get install -y ntp vim curl
 info "Redy to install openstack ${OPENSTACK_VERSION}"
 
 debug "Host is ready for installing openstack ${OPENSTACK_VERSION}"
+

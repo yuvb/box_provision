@@ -21,9 +21,6 @@ apt-get install -y neutron-server neutron-plugin-ml2 python-neutronclient neutro
 
 crudini --set ${NEUTRON_CFG} DEFAULT verbose True
 crudini --set ${NEUTRON_CFG} DEFAULT auth_strategy keystone
-#crudini --set ${NEUTRON_CFG} DEFAULT state_path /var/lib/neutron
-#crudini --set ${NEUTRON_CFG} DEFAULT lock_path $state_path/lock
-#crudini --set ${NEUTRON_CFG} DEFAULT core_plugin neutron.plugins.ml2.plugin.Ml2Plugin
 crudini --set ${NEUTRON_CFG} DEFAULT rpc_backend rabbit
 crudini --set ${NEUTRON_CFG} DEFAULT core_plugin ml2
 crudini --set ${NEUTRON_CFG} DEFAULT service_plugins router,lbaas
@@ -105,7 +102,6 @@ sed -i -e 's/^.net.ipv4.ip_forward=.*$/net.ipv4.ip_forward=1/g' \
 sysctl -p
 
 info "Creating openvswitch bridges"
-# Create openvswitch bridges
 restart_service openvswitch-switch
 ovs-vsctl add-br br-ex
 ovs-vsctl add-br br-ex2

@@ -9,6 +9,8 @@ OPENSTACK_VERSION=$1
 PUBLIC_URL="http://${MGMT_IP}:9292"
 INTERNAL_URL=${PUBLIC_URL}
 IMAGE_NAME='cirros-0.3.3-x86_64'
+API_CFG='/etc/glance/glance-api.conf'
+REGISTRY_CFG='/etc/glance/glance-registry.conf'
 
 create_db glance
 
@@ -17,7 +19,7 @@ create_service glance image "OpenStack Image Service" ${PUBLIC_URL} ${INTERNAL_U
 
 apt-get install -y glance python-glanceclient
 
-for config_file in "/etc/glance/glance-api.conf" "/etc/glance/glance-registry.conf"
+for config_file in ${API_CFG} ${REGISTRY_CFG}
 do
   if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
   then
@@ -32,9 +34,9 @@ do
   setup_keystone_authentication ${config_file} ${SERVICE_USER_NAME}
 done
 
-crudini --set /etc/glance/glance-api.conf DEFAULT rabbit_host "${MGMT_IP}"
-crudini --set /etc/glance/glance-api.conf DEFAULT os_region_name "${OS_REGION_NAME}"
-crudini --set /etc/glance/glance-cache.conf DEFAULT os_region_name "${OS_REGION_NAME}"
+crudini --set ${API_CFG} DEFAULT rabbit_host "${MGMT_IP}"
+crudini --set ${API_CFG} DEFAULT os_region_name "${OS_REGION_NAME}"
+crudini --set ${API_CFG} DEFAULT os_region_name "${OS_REGION_NAME}"
 
 info "Syncing glance db"
 glance-manage db_sync
@@ -52,7 +54,7 @@ then
   info "Image ${name} has been uploaded to glance with Id ${glance_image_id}"
 else
   error "Image ${name} hasn't been uploaded to glance"
-  exit 102
+  exit 106
 fi
 
 debug "Glance has been installed and has been configured"

@@ -67,7 +67,6 @@ sed -i -e 's/^.net.ipv4.ip_forward=.*$/net.ipv4.ip_forward=1/g' \
 sysctl -p
 
 info "Creating openvswitch bridges"
-# Openvswitch bridges
 restart_service openvswitch-switch
 ovs-vsctl add-br br-int
 ovs-vsctl add-br br-ex

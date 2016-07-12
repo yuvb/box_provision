@@ -28,14 +28,9 @@ crudini --set ${KEYSTONE_CFG} DEFAULT log_dir /var/log/keystone
 
 crudini --set ${KEYSTONE_CFG} token provider keystone.token.providers.uuid.Provider
 
-#Doesn't work for grizzly
-#crudini --set /etc/keystone/keystone.conf token driver keystone.token.persistence.backends.sql.Token
-
-#Check for juno and icehouce
-crudini --set /etc/keystone/keystone.conf revoke driver keystone.contrib.revoke.backends.sql.Revoke
+crudini --set ${KEYSTONE_CFG} revoke driver keystone.contrib.revoke.backends.sql.Revoke
 
 info "Syncing keystone DB"
-#su -s /bin/sh -c "keystone-manage db_sync" keystone
 keystone-manage db_sync
 
 restart_service keystone
