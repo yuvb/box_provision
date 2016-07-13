@@ -72,9 +72,9 @@ ovs-vsctl add-br br-int
 ovs-vsctl add-br br-ex
 ovs-vsctl add-br br-ex2
 
-restart_openstack_services ${NETWORK_SERVICE}
+restart_service ${NETWORK_SERVICE}
 
-wait_http_available ${INTERNAL_URL}
+wait_http_available ${NETWORK_SERVICE} ${INTERNAL_URL}
 
 #Should be 3 neutron services: Open vSwitch agent, L3 agent, DHCP agent
 check_openstack_services ${NETWORK_SERVICE} 3

@@ -34,12 +34,13 @@ info "Syncing keystone DB"
 keystone-manage db_sync
 
 restart_service keystone
+
 rm -rf /var/lib/keystone/keystone.db
 
 echo '@hourly /usr/bin/keystone-manage token_flush >/var/log/keystone/keystone-tokenflush.log 2>&1' | \
      tee -a /var/spool/cron/crontabs/keystone
 
-wait_http_available ${INTERNAL_URL}
+wait_http_available keystone ${INTERNAL_URL}
 
 # Tenants
 ADMIN_TENANT=$(get_id keystone tenant-create --name=admin)

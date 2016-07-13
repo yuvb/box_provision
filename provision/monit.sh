@@ -60,25 +60,7 @@ then
   service ${CHECK_SERVICE} stop
 fi
 
-i=0
-while [[ $i -lt 30 ]]
-do
-  info "Waiting for ranning service ${CHECK_SERVICE}"
-  status=$(initctl list | grep ${CHECK_SERVICE} | awk '{print $2}')
-  if [[ ${status} =~ running ]]
-  then
-    info "Service ${CHECK_SERVICE} is running"
-    info "Monit is working"
-    break
-  fi
-  if [[ $i -eq 29 ]]
-  then
-    error "Service ${CHECK_SERVICE} isn't running"
-    error "Monit isn't working"
-    exit 108
-  fi
-  sleep 3
-  let "i++"
-done
+info "Waiting for servise ${CHECK_SERVICE} running"
 
+checker "service ${CHECK_SERVICE} status | grep running" ${CHECK_SERVICE} 3
 

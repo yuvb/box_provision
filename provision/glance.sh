@@ -41,9 +41,10 @@ crudini --set ${API_CFG} DEFAULT os_region_name "${OS_REGION_NAME}"
 info "Syncing glance db"
 glance-manage db_sync
 
-restart_openstack_services glance
+restart_service glance
 
-wait_http_available ${PUBLIC_URL}
+wait_http_available glance ${PUBLIC_URL}
+
 rm -f /var/lib/glance/glance.sqlite
 
 # Upload images

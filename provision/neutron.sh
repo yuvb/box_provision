@@ -106,12 +106,18 @@ restart_service openvswitch-switch
 ovs-vsctl add-br br-ex
 ovs-vsctl add-br br-ex2
 
-restart_openstack_services ${NETWORK_SERVICE}
+restart_service ${NETWORK_SERVICE}
 
-wait_http_available ${INTERNAL_URL}
+wait_http_available ${NETWORK_SERVICE} ${INTERNAL_URL}
 
-#Should be 4 neutron services: Open vSwitch agent, L3 agent, Metadata agent, DHCP agent
-check_openstack_services ${NETWORK_SERVICE} 4
+if [[ ${OPENSTACK_VERSION} == 'juno' ]]
+then
+  #Should be 4 neutron services: Open vSwitch agent, L3 agent, Metadata agent, DHCP agent, Loadbalancer agent
+  check_openstack_services ${NETWORK_SERVICE} 5
+else
+  #Should be 4 neutron services: Open vSwitch agent, L3 agent, Metadata agent, DHCP agent
+  check_openstack_services ${NETWORK_SERVICE} 4
+fi
 
 info "Checking agents status ..."
 ${NETWORK_SERVICE} agent-list | tee -a ${SCRIPT_LOG}

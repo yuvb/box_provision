@@ -68,7 +68,6 @@ Vagrant.configure(2) do |config|
         v.memory = nodedata.fetch('memory', 1024)
         v.cpus = nodedata.fetch('cpus', 2)
         v.customize ['modifyvm', :id, '--cpuexecutioncap', '90']
-        v.customize ['modifyvm', :id, '--nictype1', 'virtio']
       end
     end
   end

@@ -89,9 +89,9 @@ crudini --set /etc/nova/nova-compute.conf libvirt virt_type qemu
 
 nova-manage db sync
 
-restart_openstack_services nova
+restart_service nova
 
-wait_http_available "http://${MGMT_IP}:8774"
+wait_http_available nova "http://${MGMT_IP}:8774"
 
 #Should be 5 nova services: nova-cert, nova-consoleauth, nova-conductor, nova-scheduler, nova-compute
 check_openstack_services nova 5

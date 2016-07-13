@@ -14,7 +14,7 @@ function create_db(){
     info "DB ${db_name} has been created successfully"
   else
     error "DB ${db_name} hasn't been created"
-    exit 107
+    exit 103
   fi
   info "Granting permissions for ${grant_user} on db ${db_name}"
   mysql << EOF
@@ -76,31 +76,20 @@ function setup_keystone_authentication(){
 }
 
 function wait_http_available(){
-  local url=$1
-  for ((i=1;i<=30;i++))
-  do
-    if (curl --output /dev/null --silent --head --fail ${url})
-    then
-      break
-    fi
-    if [[ $i == 30 ]]
-    then
-      error "Service ${service} isn't running"
-      exit 103
-    fi
-    sleep 1
-  done
+  local service=$1
+  local url=$2
+  checker "(curl --output /dev/null --silent --head --fail ${url})" ${service} 1
 }
 
-function restart_service(){
-  local service=$1
-  info "Restarting service $service"
-  service ${service} restart
-  info "Checking service ${service} status"
-  i=0
-  while [[ $i -lt 30 ]]
+function checker(){
+  local check_cmd=$1
+  local service=$2
+  local time_sleep=$3
+  local timeout=30
+  local i=0
+  while [[ $i -lt ${timeout} ]]
   do
-    service ${service} status | grep running
+    echo ${check_cmd} | bash
     if [[ $? == 0 ]]
     then
       info "Service ${service} is running"
@@ -111,26 +100,37 @@ function restart_service(){
       error "Service ${service} isn't running"
       exit 104
     fi
-    sleep 1
+    sleep ${time_sleep}
     let "i++"
   done
-
-  info "Service ${service} has been restarted successfully"
 }
 
-function restart_openstack_services(){
-  local openstack_service=$1
-  for service in $(initctl list | grep ${openstack_service} | awk '{print $1}')
+function restart_service(){
+  local service=$1
+  local openstack_services='nova glance cinder neutron quantum'
+  local services=''
+  if [[ ${openstack_services} =~ ${service} ]]
+  then
+    services=$(initctl list | grep ${service} | awk '{print $1}')
+  else
+    services=${service}
+  fi
+  for current_service in ${services}
   do
-    restart_service ${service}
+    info "Restarting service ${current_service}"
+    service ${current_service} restart
+    info "Checking service ${current_service} status"
+    checker "service ${current_service} status | grep running" ${current_service} 1
   done
+  info "Service ${service} has been restarted successfully"
 }
 
 function check_openstack_services(){
   local service=$1
   local count=$2
+  local timeout=30
   local i=0
-  while [[ $i -lt 30 ]]
+  while [[ $i -lt ${timeout} ]]
   do
     case $service in
     nova)
@@ -160,7 +160,6 @@ function check_openstack_services(){
     sleep 1
     let "i++"
   done
-
 }
 
 function create_monit_script(){
@@ -222,7 +221,7 @@ else
   exit 1
 fi
 EOF
-   
+
   else
 cat<< EOF >>"${script_folder}/check_${service}.sh"
 #!/bin/bash

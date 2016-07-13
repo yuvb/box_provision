@@ -83,7 +83,9 @@ cinder-manage db sync
 
 cinder_services=$(initctl list | grep cinder | awk '{print $1}')
 
-restart_openstack_services cinder
+restart_service cinder
+
+wait_http_available cinder "http://${MGMT_IP}:8776"
 
 info "Cheking cinder services"
 if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
