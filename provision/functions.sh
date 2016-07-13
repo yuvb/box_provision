@@ -95,7 +95,7 @@ function checker(){
       info "Service ${service} is running"
       break
     fi
-    if [[ $i == 29 ]]
+    if [[ $i == $((timout -1)) ]]
     then
       error "Service ${service} isn't running"
       exit 104
@@ -152,7 +152,7 @@ function check_openstack_services(){
       info "All ${services} services exist"
       break
     fi
-    if [[ $i -eq 29 ]]
+    if [[ $i -eq $((timout -1)) ]]
     then
       error "Some ${service} services didn't start"
       exit 105

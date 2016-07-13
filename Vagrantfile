@@ -4,14 +4,16 @@
 nodes = {
   'nfs' => {
     'box' => 'ubuntu/trusty64',
-    'ip' => '192.168.1.10',
+    'ip1' => '192.168.1.10',
+    'ip2' => '172.16.1.10',
     'memory' => 1024,
     'cpus' => 1,
     'role' => 'nfs'
   },
   'grizzly' => {
     'box' => 'ubuntu/precise64',
-    'ip' => '192.168.1.2',
+    'ip1' => '192.168.1.2',
+    'ip2' => '172.16.1.2',
     'role' => 'openstack',
     'memory' => 4096,
     'cpus' => 2,
@@ -20,7 +22,8 @@ nodes = {
   },
   'icehouse' => {
     'box' => 'ubuntu/trusty64',
-    'ip' => '192.168.1.3',
+    'ip1' => '192.168.1.3',
+    'ip2' => '172.16.1.3',
     'role' => 'openstack',
     'memory' => 4096,
     'cpu' => 2,
@@ -29,7 +32,8 @@ nodes = {
   },
   'juno' => {
     'box' => 'ubuntu/trusty64',
-    'ip' => '192.168.1.8',
+    'ip1' => '192.168.1.8',
+    'ip2' => '172.16.1.8',
     'role' => 'openstack',
     'memory' => 4096,
     'cpu' => 2,
@@ -43,7 +47,8 @@ Vagrant.configure(2) do |config|
     config.vm.define nodename do |thisnode|
       thisnode.vm.box = nodedata['box']
       thisnode.vm.hostname = nodedata.fetch('hostname', nodename)
-      thisnode.vm.network 'private_network', ip: nodedata['ip']
+      thisnode.vm.network 'private_network', ip: nodedata['ip1']
+      thisnode.vm.network 'private_network', ip: nodedata['ip2']
 
       case nodedata.fetch('role', '')
       when 'openstack'
