@@ -75,6 +75,77 @@ function setup_keystone_authentication(){
   crudini --set ${config_file} ${section} admin_password ${SERVICE_USER_PASSWORD}
 }
 
+function prepare_network_host(){
+  local interface_cfg='/etc/network/interfaces'
+  local ip_eth1=$(ip a show dev eth1 | awk '/inet / {print $2}' | cut -d '/' -f 1)
+  local ip_eth2=$(ip a show dev eth2 | awk '/inet / {print $2}' | cut -d '/' -f 1)
+
+  # Start script
+cat << EOF > /etc/rc.local
+#!/bin/sh -e
+bridges=\$(awk '{ if (\$1 == "allow-ovs") { print \$2; } }' ${interface_cfg})
+[ -n "\${bridges}" ] && ifup --allow=ovs \${bridges}
+
+exit 0
+EOF
+
+  # Clean interfaces file
+  source_str_number=$(grep -n "source ${interface_cfg}" ${interface_cfg} | cut -d ':' -f 1)
+  sed -i  ''$((source_str_number+1))',$d' ${interface_cfg}
+
+  info "Configuring certain kernel networking parameters"
+  # Kernel networking parameters
+  sed -i -e 's/^.net.ipv4.ip_forward=.*$/net.ipv4.ip_forward=1/g' \
+         -e 's/^.net.ipv4.conf.all.rp_filter=.*$/net.ipv4.conf.all.rp_filter=0/g' \
+         -e 's/^.net.ipv4.conf.default.rp_filter=.*$/net.ipv4.conf.default.rp_filter=0/g'  /etc/sysctl.conf
+  sysctl -p
+
+  info "Creating openvswitch bridges"
+  restart_service openvswitch-switch
+  ovs-vsctl add-br br-ex
+  ovs-vsctl add-port br-ex eth1
+  ovs-vsctl add-br br-ex2
+  ovs-vsctl add-port br-ex2 eth2
+
+  if [[ ${NETWORK_SERVICE} == quantum ]]
+  then
+    ovs-vsctl add-br br-int
+  fi
+
+  for index in 1 2
+  do
+    ethtool -K eth${index} gro off tso off sg off
+cat << EOF >> ${interface_cfg}
+
+auto eth${index}
+iface eth${index} inet manual
+    up ip link set \$IFACE promisc on
+    down ip link set \$IFACE promisc off
+EOF
+  done
+
+cat << EOF >> /etc/network/interfaces
+
+allow-ovs br-ex
+iface br-ex inet static
+    ovs_type OVSBridge
+    address ${ip_eth1}
+    netmask 255.255.255.0
+    up ip link set \$IFACE promisc on
+    down ip link set \$IFACE promisc off
+
+allow-ovs br-ex2
+iface br-ex2 inet static
+    ovs_type OVSBridge
+    address ${ip_eth2}
+    netmask 255.255.255.0
+    up ip link set \$IFACE promisc on
+    down ip link set \$IFACE promisc off
+EOF
+
+  restart_service ${NETWORK_SERVICE}
+}
+
 function wait_http_available(){
   local service=$1
   local url=$2

@@ -17,7 +17,7 @@ METADATA_CFG='/etc/neutron/metadata_agent.ini'
 
 debug "Installing ${NETWORK_SERVICE} servises ..."
 apt-get install -y neutron-server neutron-plugin-ml2 python-neutronclient neutron-plugin-ml2 \
-        neutron-plugin-openvswitch-agent neutron-l3-agent neutron-dhcp-agent neutron-lbaas-agent
+        neutron-plugin-openvswitch-agent neutron-l3-agent neutron-dhcp-agent neutron-lbaas-agent ethtool
 
 crudini --set ${NEUTRON_CFG} DEFAULT verbose True
 crudini --set ${NEUTRON_CFG} DEFAULT auth_strategy keystone
@@ -94,19 +94,7 @@ fi
 # Create service and endpoint
 create_service ${NETWORK_SERVICE} network "OpenStack Networking service" ${PUBLIC_URL} ${INTERNAL_URL}
 
-info "Configuring certain kernel networking parameters"
-# Kernel networking parameters
-sed -i -e 's/^.net.ipv4.ip_forward=.*$/net.ipv4.ip_forward=1/g' \
-       -e 's/^.net.ipv4.conf.all.rp_filter=.*$/net.ipv4.conf.all.rp_filter=0/g' \
-       -e 's/^.net.ipv4.conf.default.rp_filter=.*$/net.ipv4.conf.default.rp_filter=0/g'  /etc/sysctl.conf
-sysctl -p
-
-info "Creating openvswitch bridges"
-restart_service openvswitch-switch
-ovs-vsctl add-br br-ex
-ovs-vsctl add-br br-ex2
-
-restart_service ${NETWORK_SERVICE}
+prepare_network_host
 
 wait_http_available ${NETWORK_SERVICE} ${INTERNAL_URL}
 

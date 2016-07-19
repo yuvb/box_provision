@@ -14,12 +14,15 @@ apt-get update && apt-get upgrade -y
 apt-get autoremove -y
 info "Packages have been updated"
 info "Installing openstack ${OPENSTACK_VERSION} repository"
+
+apt-get -y purge cloud-init
+
 apt-get install -y ubuntu-cloud-keyring python-software-properties software-properties-common python-keyring \
                    python-pip augeas-tools
 
+info "Will be installing ${OPENSTACK_VERSION} on Ubuntu ${UBUNTU_VERSION}"
 if [[ (${OPENSTACK_VERSION} == 'grizzly') && (${UBUNTU_VERSION} == '12.04') ]]
 then
-  info "Will be installing ${OPENSTACK_VERSION} on Ubuntu ${UBUNTU_VERSION}"
   echo deb http://ubuntu-cloud.archive.canonical.com/ubuntu precise-updates/grizzly main | \
        tee -a /etc/apt/sources.list.d/grizzly.list
   if [[ (-f ${APT_SOURCE}) && (-s ${APT_SOURCE}) ]]
@@ -36,7 +39,6 @@ then
   info "Redy to install openstack grizzly"
 elif [[ (${SUPPORT_OPENSTACK_VERSIONS} =~ ${OPENSTACK_VERSION}) && (${UBUNTU_VERSION} == '14.04') ]]
 then
-  info "Will be installed ${OPENSTACK_VERSION} on Ubuntu ${UBUNTU_VERSION}"
   add-apt-repository cloud-archive:${OPENSTACK_VERSION}
   apt-get install -y crudini
 fi

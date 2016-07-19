@@ -6,6 +6,7 @@ source /vagrant/provision/vars.sh
 source /home/vagrant/openrc_admin
 
 OPENSTACK_VERSION=$1
+NFS_HOST=$2
 CINDER_CFG='/etc/cinder/cinder.conf'
 
 debug "Installing cinder services ..."
@@ -74,7 +75,7 @@ do
   crudini --set ${CINDER_CFG} nfs${index} volume_backend_name nfs${index}
 # NFS share
 cat<< EOF >>"/etc/cinder/nfsshares${index}"
-192.168.1.10:/var/exports/${OPENSTACK_VERSION}${index}
+${NFS_HOST}:/var/exports/${OPENSTACK_VERSION}${index}
 EOF
 done
 

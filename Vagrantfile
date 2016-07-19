@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby ts=2 sw=2 et sua= inex= :
 
+require "vagrant-reload"
+
 nodes = {
   'nfs' => {
     'box' => 'ubuntu/trusty64',
@@ -53,6 +55,7 @@ Vagrant.configure(2) do |config|
       case nodedata.fetch('role', '')
       when 'openstack'
         thisnode.vm.provision 'shell', path: './provision/prepare.sh', args: nodedata['release']
+        thisnode.vm.provision :reload
         thisnode.vm.provision 'shell', path: './provision/keystone.sh', args: nodedata['release']
         thisnode.vm.provision 'shell', path: './provision/glance.sh', args: nodedata['release']
         thisnode.vm.provision 'shell', path: './provision/nova.sh', args: nodedata['release']
@@ -61,7 +64,7 @@ Vagrant.configure(2) do |config|
         else
           thisnode.vm.provision 'shell', path: './provision/neutron.sh', args: nodedata['release']
         end
-        thisnode.vm.provision 'shell', path: './provision/cinder.sh', args: nodedata['release']
+        thisnode.vm.provision 'shell', path: './provision/cinder.sh', args: [nodedata['release'], nodes['nfs']['ip1']]
         thisnode.vm.provision 'shell', path: './provision/horizon.sh'
         thisnode.vm.provision 'shell', path: './provision/monit.sh', args: nodedata['release']
 

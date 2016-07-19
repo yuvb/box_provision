@@ -17,8 +17,12 @@ DHCP_AGENT_CFG='/etc/quantum/dhcp_agent.ini'
 
 debug "Installing ${NETWORK_SERVICE} services ..."
 
-apt-get install -y openvswitch-switch quantum-server quantum-plugin-openvswitch quantum-plugin-openvswitch-agent \
-                   dnsmasq quantum-dhcp-agent quantum-l3-agent quantum-lbaas-agent
+apt-get install -y openvswitch-switch quantum-plugin-openvswitch quantum-plugin-openvswitch-agent quantum-server \
+                   dnsmasq quantum-dhcp-agent quantum-l3-agent quantum-lbaas-agent ethtool module-assistant
+
+# Configure openvswitch module
+#module-assistant -i auto-install openvswitch-datapath
+
 #  /etc/quantum/api-paste.ini
 setup_keystone_authentication ${PASTE_CFG} ${SERVICE_USER_NAME} 'filter:authtoken'
 crudini --set ${PASTE_CFG} DEFAULT debug true
@@ -59,20 +63,7 @@ create_db ${NETWORK_SERVICE}
 # Create service and endpoint
 create_service ${NETWORK_SERVICE} network "OpenStack Networking service" ${PUBLIC_URL} ${INTERNAL_URL}
 
-info "Configuring certain kernel networking parameters"
-# Networking parameters
-sed -i -e 's/^.net.ipv4.ip_forward=.*$/net.ipv4.ip_forward=1/g' \
-       -e 's/^.net.ipv4.conf.all.rp_filter=.*$/net.ipv4.conf.all.rp_filter=0/g' \
-       -e 's/^.net.ipv4.conf.default.rp_filter=.*$/net.ipv4.conf.default.rp_filter=0/g'  /etc/sysctl.conf
-sysctl -p
-
-info "Creating openvswitch bridges"
-restart_service openvswitch-switch
-ovs-vsctl add-br br-int
-ovs-vsctl add-br br-ex
-ovs-vsctl add-br br-ex2
-
-restart_service ${NETWORK_SERVICE}
+prepare_network_host
 
 wait_http_available ${NETWORK_SERVICE} ${INTERNAL_URL}
 
