@@ -47,7 +47,6 @@ then
   crudini --set ${NOVA_CFG} DEFAULT metadata_listen_port 8775
   # compute
   crudini --set ${NOVA_CFG} DEFAULT compute_driver libvirt.LibvirtDriver
-  crudini --set ${NOVA_CFG} DEFAULT allow_resize_to_same_host true
   crudini --set ${NOVA_CFG} DEFAULT scheduler_default_filters AllHostsFilter
   # image
   crudini --set ${NOVA_CFG} DEFAULT glance_api_servers ${MGMT_IP}:9292
@@ -85,7 +84,15 @@ crudini --set ${NOVA_CFG} DEFAULT vncserver_proxyclient_address ${MGMT_IP}
 crudini --set ${NOVA_CFG} DEFAULT novncproxy_base_url "http://${MGMT_IP}:6080/vnc_auto.html"
 crudini --set ${NOVA_CFG} DEFAULT glance_host "${MGMT_IP}"
 crudini --set ${NOVA_CFG} DEFAULT auth_strategy keystone
+crudini --set ${NOVA_CFG} DEFAULT allow_resize_to_same_host True
+crudini --set ${NOVA_CFG} DEFAULT allow_migrate_to_same_host True
+crudini --set ${NOVA_CFG} DEFAULT api_rate_limit False
 crudini --set /etc/nova/nova-compute.conf libvirt virt_type qemu
+
+# Reducing of system resources consumption
+crudini --set ${NOVA_CFG} DEFAULT osapi_compute_workers 1
+crudini --set ${NOVA_CFG} DEFAULT metadata_workers 1
+crudini --set ${NOVA_CFG} conductor workers 1
 
 nova-manage db sync
 
