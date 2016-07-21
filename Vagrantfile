@@ -51,6 +51,7 @@ Vagrant.configure(2) do |config|
       thisnode.vm.hostname = nodedata.fetch('hostname', nodename)
       thisnode.vm.network 'private_network', ip: nodedata['ip1']
       thisnode.vm.network 'private_network', ip: nodedata['ip2']
+      thisnode.ssh.insert_key = false
 
       case nodedata.fetch('role', '')
       when 'openstack'
