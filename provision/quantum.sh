@@ -20,9 +20,6 @@ debug "Installing ${NETWORK_SERVICE} services ..."
 apt-get install -y openvswitch-switch quantum-plugin-openvswitch quantum-plugin-openvswitch-agent quantum-server \
                    dnsmasq quantum-dhcp-agent quantum-l3-agent quantum-lbaas-agent ethtool module-assistant
 
-# Configure openvswitch module
-#module-assistant -i auto-install openvswitch-datapath
-
 #  /etc/quantum/api-paste.ini
 setup_keystone_authentication ${PASTE_CFG} ${SERVICE_USER_NAME} 'filter:authtoken'
 crudini --set ${PASTE_CFG} DEFAULT debug true
@@ -63,7 +60,7 @@ create_db ${NETWORK_SERVICE}
 # Create service and endpoint
 create_service ${NETWORK_SERVICE} network "OpenStack Networking service" ${PUBLIC_URL} ${INTERNAL_URL}
 
-prepare_network_host
+prepare_network_host ${BR_EX1} ${BR_EX2}
 
 wait_http_available ${NETWORK_SERVICE} ${INTERNAL_URL}
 

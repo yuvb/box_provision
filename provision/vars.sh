@@ -22,4 +22,5 @@ export OS_AUTH_URL="http://${MGMT_IP}:35357/v2.0"
 export OS_REGION_NAME="integration"
 export OS_SERVICE_ENDPOINT="http://${MGMT_IP}:35357/v2.0"
 export OS_SERVICE_TOKEN=${PASSWORD}
-
+export BR_EX1='br-ex'
+export BR_EX2='br-ex2'

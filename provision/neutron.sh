@@ -54,7 +54,7 @@ crudini --set ${ML2_CFG} securitygroup enable_security_group True
 crudini --set ${ML2_CFG} ovs local_ip ${MGMT_IP}
 crudini --set ${ML2_CFG} ovs tunnel_type gre
 crudini --set ${ML2_CFG} ovs enable_tunneling True
-crudini --set ${ML2_CFG} ovs bridge_mappings physnet1:br-ex,physnet2:br-ex2
+crudini --set ${ML2_CFG} ovs bridge_mappings physnet1:${BR_EX1},physnet2:${BR_EX2}
 crudini --set ${ML2_CFG} ml2_type_gre tunnel_id_ranges 1:1000
 
 crudini --set ${L3_AGENT_CFG} DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
@@ -94,13 +94,13 @@ fi
 # Create service and endpoint
 create_service ${NETWORK_SERVICE} network "OpenStack Networking service" ${PUBLIC_URL} ${INTERNAL_URL}
 
-prepare_network_host
+prepare_network_host ${BR_EX1} ${BR_EX2}
 
 wait_http_available ${NETWORK_SERVICE} ${INTERNAL_URL}
 
 if [[ ${OPENSTACK_VERSION} == 'juno' ]]
 then
-  #Should be 4 neutron services: Open vSwitch agent, L3 agent, Metadata agent, DHCP agent, Loadbalancer agent
+  #Should be 5 neutron services: Open vSwitch agent, L3 agent, Metadata agent, DHCP agent, Loadbalancer agent
   check_openstack_services ${NETWORK_SERVICE} 5
 else
   #Should be 4 neutron services: Open vSwitch agent, L3 agent, Metadata agent, DHCP agent

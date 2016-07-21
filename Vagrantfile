@@ -55,17 +55,19 @@ Vagrant.configure(2) do |config|
       case nodedata.fetch('role', '')
       when 'openstack'
         thisnode.vm.provision 'shell', path: './provision/prepare.sh', args: nodedata['release']
+        # https://bugs.launchpad.net/ubuntu/+source/openvswitch/+bug/962189 Openvswitch dkms module module won't
+        # rebuild on kernel updates.
         thisnode.vm.provision :reload
         thisnode.vm.provision 'shell', path: './provision/keystone.sh', args: nodedata['release']
         thisnode.vm.provision 'shell', path: './provision/glance.sh', args: nodedata['release']
         thisnode.vm.provision 'shell', path: './provision/nova.sh', args: nodedata['release']
+        thisnode.vm.provision 'shell', path: './provision/cinder.sh', args: [nodedata['release'], nodes['nfs']['ip1']]
+        thisnode.vm.provision 'shell', path: './provision/horizon.sh'
         if nodename == 'grizzly'
           thisnode.vm.provision 'shell', path: './provision/quantum.sh'
         else
           thisnode.vm.provision 'shell', path: './provision/neutron.sh', args: nodedata['release']
         end
-        thisnode.vm.provision 'shell', path: './provision/cinder.sh', args: [nodedata['release'], nodes['nfs']['ip1']]
-        thisnode.vm.provision 'shell', path: './provision/horizon.sh'
         thisnode.vm.provision 'shell', path: './provision/monit.sh', args: nodedata['release']
 
       when 'nfs'

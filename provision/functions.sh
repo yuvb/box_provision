@@ -32,7 +32,7 @@ function get_id (){
   echo "$("$@" | awk '/ id / { print $4 }')"
 }
 
-create_service(){
+function create_service(){
   local name="${1}"
   local type="${2}"
   local description="${3}"
@@ -76,6 +76,8 @@ function setup_keystone_authentication(){
 }
 
 function prepare_network_host(){
+  local br_ex1=$1
+  local br_ex2=$2
   local interface_cfg='/etc/network/interfaces'
   local ip_eth1=$(ip a show dev eth1 | awk '/inet / {print $2}' | cut -d '/' -f 1)
   local ip_eth2=$(ip a show dev eth2 | awk '/inet / {print $2}' | cut -d '/' -f 1)
@@ -102,10 +104,10 @@ EOF
 
   info "Creating openvswitch bridges"
   restart_service openvswitch-switch
-  ovs-vsctl add-br br-ex
-  ovs-vsctl add-port br-ex eth1
-  ovs-vsctl add-br br-ex2
-  ovs-vsctl add-port br-ex2 eth2
+  ovs-vsctl add-br ${br_ex1}
+  ovs-vsctl add-port ${br_ex1} eth1
+  ovs-vsctl add-br ${br_ex2}
+  ovs-vsctl add-port ${br_ex2} eth2
 
   if [[ ${NETWORK_SERVICE} == quantum ]]
   then
@@ -126,16 +128,16 @@ EOF
 
 cat << EOF >> /etc/network/interfaces
 
-allow-ovs br-ex
-iface br-ex inet static
+allow-ovs ${br_ex1}
+iface ${br_ex1} inet static
     ovs_type OVSBridge
     address ${ip_eth1}
     netmask 255.255.255.0
     up ip link set \$IFACE promisc on
     down ip link set \$IFACE promisc off
 
-allow-ovs br-ex2
-iface br-ex2 inet static
+allow-ovs ${br_ex2}
+iface ${br_ex2} inet static
     ovs_type OVSBridge
     address ${ip_eth2}
     netmask 255.255.255.0
