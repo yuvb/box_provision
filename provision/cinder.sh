@@ -54,8 +54,8 @@ info "Modifying iscsi settings"
 if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
 then
   sed -i 's/false/true/g' /etc/default/iscsitarget
-  restart_service iscsitarget 
-  restart_service open-iscsi 
+  restart_service iscsitarget
+  restart_service open-iscsi
 else
   restart_service tgt
 fi

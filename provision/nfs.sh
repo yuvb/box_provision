@@ -29,7 +29,7 @@ usermod -G cinder cinder
 
 # Change owner
 info "Changing folder owner on cinder"
-yes | find /var/exports/ -maxdepth 1 -type d -execdir chown -R cinder. {} + -okdir chmod 777 {} \;
+find ${NFS_ROOT} -maxdepth 1 -type d -execdir chown -R cinder. {} + -execdir chmod 777 {} \;
 
 # Add to exports file
 cat<< EOF >>${NFS_CFG}
