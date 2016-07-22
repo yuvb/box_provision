@@ -122,7 +122,6 @@ then
     fi
   done
 fi
-
 restart_service nova
 
 wait_http_available nova "http://${MGMT_IP}:8774"
