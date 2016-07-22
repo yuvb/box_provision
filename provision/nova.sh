@@ -96,6 +96,25 @@ crudini --set ${NOVA_CFG} conductor workers 1
 
 nova-manage db sync
 
+# Cleans up `nova.instances` table with all it's constraints to automate
+# live migration.
+if [[ ${OPENSTACK_VERSION} == 'icehouse' ]]
+then
+  tables_to_remove=(
+    block_device_mapping
+    instance_actions_events
+    instance_actions
+    instance_faults
+    instance_info_caches
+    instance_system_metadata
+    instances
+  )
+  service nova-compute stop
+  for t in ${tables_to_remove[*]}; do
+    mysql -u${DB_USER} -p${DB_PASSWORD} -e "delete from ${t}" nova
+  done
+fi
+
 restart_service nova
 
 wait_http_available nova "http://${MGMT_IP}:8774"
