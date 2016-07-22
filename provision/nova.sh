@@ -112,7 +112,7 @@ then
   service nova-compute stop
   for t in ${tables_to_remove[*]}
   do
-    info "Removing table ${f} in db nova"
+    info "Removing table ${t} in db nova"
     mysql -u${DB_USER} -p${DB_PASSWORD} -e "delete from ${t}" nova
     if [[ $? == 0 ]]
     then

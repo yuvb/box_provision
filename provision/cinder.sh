@@ -15,7 +15,7 @@ apt-get install -y cinder-api cinder-scheduler cinder-volume
 
 if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
 then
-  PUBLIC_URL="http://${MGMT_IP}:8776/v1/$(tenant_id)s"
+  PUBLIC_URL="http://${MGMT_IP}:8776/v1/"'$(tenant_id)s'
   INTERNAL_URL=${PUBLIC_URL}
   PASTE_CFG='/etc/cinder/api-paste.ini'
 
