@@ -17,6 +17,15 @@ function create_db(){
     exit 103
   fi
   info "Granting permissions for ${grant_user} on db ${db_name}"
+  # After adding hosts to /etc/hosts files the error "ERROR: An unexpected error prevented the server from fulfilling your
+  # request. (OperationalError) (1045, "Access denied for user 'root'@'grizzly' (using password: YES)") None None"
+  # is appeared.
+  if [[ (${OPENSTACK_VERSION} == 'grizzly') && (${db_name} == 'keystone') ]]
+  then
+    mysql << EOF
+    GRANT ALL PRIVILEGES ON ${db_name}.* TO '${grant_user}'@'$(hostname)' IDENTIFIED BY '${user_secret}' WITH GRANT OPTION;
+EOF
+  fi
   mysql << EOF
   GRANT ALL PRIVILEGES ON ${db_name}.* TO '${grant_user}'@'%' IDENTIFIED BY '${user_secret}' WITH GRANT OPTION;
 EOF
