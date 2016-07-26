@@ -20,6 +20,7 @@ apt-get install -y neutron-server neutron-plugin-ml2 python-neutronclient neutro
         neutron-plugin-openvswitch-agent neutron-l3-agent neutron-dhcp-agent neutron-lbaas-agent ethtool
 
 crudini --set ${NEUTRON_CFG} DEFAULT verbose True
+crudini --set ${NEUTRON_CFG} DEFAULT debug True
 crudini --set ${NEUTRON_CFG} DEFAULT auth_strategy keystone
 crudini --set ${NEUTRON_CFG} DEFAULT rpc_backend rabbit
 crudini --set ${NEUTRON_CFG} DEFAULT core_plugin ml2

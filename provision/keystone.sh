@@ -14,7 +14,7 @@ debug "Installing keystone service ..."
 create_db keystone
 apt-get install -y keystone python-keystoneclient
 
-if [[ 'grizzly' = "${OPENSTACK_VERSION}" ]]
+if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
 then
   crudini --set ${KEYSTONE_CFG} sql connection "mysql://${DB_USER}:${DB_PASSWORD}@${MGMT_IP}/keystone"
 else
