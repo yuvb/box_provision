@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source /vagrant/provision/functions.sh
+
 apt-get install -y apache2 memcached libapache2-mod-wsgi openstack-dashboard
 dpkg --purge openstack-dashboard-ubuntu-theme
 for service in apache2 memcached
