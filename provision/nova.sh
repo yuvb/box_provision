@@ -26,6 +26,7 @@ crudini --set ${NOVA_CFG} database connection mysql://${DB_USER}:${DB_PASSWORD}@
 if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
 then
   PASTE_CFG='/etc/nova/api-paste.ini'
+  COMPUTE_CFG='/etc/nova/nova-compute.conf'
   setup_keystone_authentication ${PASTE_CFG} ${SERVICE_USER_NAME} 'filter:authtoken'
   crudini --set ${PASTE_CFG} filter:authtoken paste.filter_factory keystoneclient.middleware.auth_token:filter_factory
   crudini --set ${PASTE_CFG} filter:authtoken signing_dirname /tmp/keystone-signing-nova
@@ -34,7 +35,7 @@ then
   crudini --set ${NOVA_CFG} DEFAULT quantum_url http://${MGMT_IP}:9696
   crudini --set ${NOVA_CFG} DEFAULT quantum_auth_strategy keystone
   crudini --set ${NOVA_CFG} DEFAULT quantum_admin_tenant_name ${SERVICE_TENANT_NAME}
-  crudini --set ${NOVA_CFG} DEFAULT quantum_admin_username quantum
+  crudini --set ${NOVA_CFG} DEFAULT quantum_admin_username ${SERVICE_TENANT_NAME}
   crudini --set ${NOVA_CFG} DEFAULT quantum_admin_password ${SERVICE_USER_PASSWORD}
   crudini --set ${NOVA_CFG} DEFAULT quantum_admin_auth_url http://${MGMT_IP}:35357/v2.0
   crudini --set ${NOVA_CFG} DEFAULT libvirt_vif_driver nova.virt.libvirt.vif.LibvirtHybridOVSBridgeDriver
@@ -57,6 +58,8 @@ then
   crudini --set ${NOVA_CFG} DEFAULT security_group_api quantum
   crudini --set ${NOVA_CFG} DEFAULT firewall_driver nova.virt.firewall.NoopFirewallDriver
   crudini --set ${NOVA_CFG} DEFAULT iscsi_ip_address ${MGMT_IP}
+  # compute
+  crudini --set ${COMPUTE_CFG} DEFAULT libvirt_type qemu
 else
   crudini --set ${NOVA_CFG} DEFAULT rpc_backend rabbit
   crudini --set ${NOVA_CFG} DEFAULT network_api_class nova.network.neutronv2.api.API
@@ -72,6 +75,7 @@ else
   crudini --set ${NOVA_CFG} DEFAULT security_group_api neutron
   crudini --set ${NOVA_CFG} DEFAULT service_neutron_metadata_proxy true
   crudini --set ${NOVA_CFG} DEFAULT neutron_metadata_proxy_shared_secret ${METADATA_PROXY_SHARED_SECRET}
+  crudini --set ${NOVA_CFG} DEFAULT libvirt_type qemu
 fi
 
 crudini --set ${NOVA_CFG} DEFAULT debug True

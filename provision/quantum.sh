@@ -33,6 +33,7 @@ crudini --set ${OVS_PLUGIN_CFG} OVS integration_bridge br-int
 crudini --set ${OVS_PLUGIN_CFG} OVS local_ip ${MGMT_IP}
 crudini --set ${OVS_PLUGIN_CFG} OVS enable_tunneling True
 crudini --set ${OVS_PLUGIN_CFG} OVS network_vlan_ranges physnet1:1000:2999
+crudini --set ${OVS_PLUGIN_CFG} SECURITYGROUP firewall_driver quantum.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 # /etc/quantum/metadata_agent.ini
 setup_keystone_authentication ${METADATA_CFG} ${SERVICE_USER_NAME} DEFAULT
 crudini --set ${METADATA_CFG} DEFAULT debug true
