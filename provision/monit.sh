@@ -13,7 +13,7 @@ apt-get install -y monit
 
 info "Changing monit config"
 info "Setting check services at 10 seconds intervals"
-sed -i 's/set daemon [0-9]*/set daemon 20/' ${MONIT_CFG}
+sed -i 's/set daemon [0-9]*/set daemon 40/' ${MONIT_CFG}
 sed -i 's/#   with start delay [0-9]*/  with start delay 20/' ${MONIT_CFG}
 info "Setting http port and allowing users"
 cat<< EOF >>${MONIT_CFG}
