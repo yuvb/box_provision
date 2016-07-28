@@ -71,5 +71,8 @@ check_openstack_services ${NETWORK_SERVICE} 3
 info "Checking agents status"
 ${NETWORK_SERVICE} agent-list | tee -a ${SCRIPT_LOG}
 
+info "Deleting 70-persistent-net.rules files"
+rm -f '/etc/udev/rules.d/70-persistent-net.rules'
+
 debug "${NETWORK_SERVICE} has been installed and has been configured"
 

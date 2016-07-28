@@ -145,6 +145,14 @@ iface ${br_ex2} inet static
     down ip link set \$IFACE promisc off
 EOF
 
+  info "Activating ovs bridges"
+  bridges=$(awk '{ if ($1 == "allow-ovs") { print $2; } }' ${interface_cfg})
+  ifup --allow=ovs ${bridges}
+
+  info "Restarting network interfaces"
+  ifdown eth1 eth2 && ifup eth1 eth2
+  ip neigh flush all
+
   restart_service ${NETWORK_SERVICE}
 }
 
