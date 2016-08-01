@@ -29,7 +29,7 @@ nodes = {
     ip2: '172.16.1.3',
     role: :openstack,
     memory: 4096,
-    cpu: 2,
+    cpus: 2,
     hostname: 'icehouse',
     release: 'icehouse'
   },
@@ -39,7 +39,7 @@ nodes = {
     ip2: '172.16.1.8',
     role: :openstack,
     memory: 4096,
-    cpu: 2,
+    cpus: 2,
     hostname: 'juno',
     release: 'juno'
   }
