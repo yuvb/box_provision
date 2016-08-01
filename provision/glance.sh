@@ -1,16 +1,17 @@
 #!/bin/bash
 
-source /vagrant/provision/logger.sh
-source /vagrant/provision/functions.sh
-source /vagrant/provision/vars.sh
-source /home/vagrant/openrc_admin
-
-OPENSTACK_VERSION=$1
+MGMT_IP=$1
+OPENSTACK_VERSION=$2
 PUBLIC_URL="http://${MGMT_IP}:9292"
 INTERNAL_URL=${PUBLIC_URL}
 IMAGE_NAME='cirros-0.3.3-x86_64'
 API_CFG='/etc/glance/glance-api.conf'
 REGISTRY_CFG='/etc/glance/glance-registry.conf'
+
+source /vagrant/provision/logger.sh
+source /vagrant/provision/functions.sh
+source /vagrant/provision/vars.sh
+source /home/vagrant/openrc_admin
 
 create_db glance
 

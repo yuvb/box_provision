@@ -1,11 +1,7 @@
 #!/bin/bash
 
-source /vagrant/provision/logger.sh
-source /vagrant/provision/functions.sh
-source /vagrant/provision/vars.sh
-source /home/vagrant/openrc_admin
-
-OPENSTACK_VERSION=$1
+MGMT_IP=$1
+OPENSTACK_VERSION=$2
 PUBLIC_URL="http://${MGMT_IP}:9696"
 INTERNAL_URL=${PUBLIC_URL}
 NETWORK_SERVICE='neutron'
@@ -14,6 +10,11 @@ ML2_CFG='/etc/neutron/plugins/ml2/ml2_conf.ini'
 L3_AGENT_CFG='/etc/neutron/l3_agent.ini'
 DHCP_AGENT_CFG='/etc/neutron/dhcp_agent.ini'
 METADATA_CFG='/etc/neutron/metadata_agent.ini'
+
+source /vagrant/provision/logger.sh
+source /vagrant/provision/functions.sh
+source /vagrant/provision/vars.sh
+source /home/vagrant/openrc_admin
 
 debug "Installing ${NETWORK_SERVICE} servises ..."
 apt-get install -y neutron-server neutron-plugin-ml2 python-neutronclient neutron-plugin-ml2 \

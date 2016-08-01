@@ -1,13 +1,14 @@
 #!/bin/bash
 
+MGMT_IP=$1
+OPENSTACK_VERSION=$2
+NFS_HOST=$3
+CINDER_CFG='/etc/cinder/cinder.conf'
+
 source /vagrant/provision/logger.sh
 source /vagrant/provision/functions.sh
 source /vagrant/provision/vars.sh
 source /home/vagrant/openrc_admin
-
-OPENSTACK_VERSION=$1
-NFS_HOST=$2
-CINDER_CFG='/etc/cinder/cinder.conf'
 
 debug "Installing cinder services ..."
 

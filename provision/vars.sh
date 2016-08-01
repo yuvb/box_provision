@@ -8,7 +8,6 @@ export DB_PASSWORD="${PASSWORD}"
 export DB_USER='root'
 export UBUNTU_VERSION=$(lsb_release -a | awk '/Release/ {print $2}')
 export DEBIAN_FRONTEND=noninteractive
-export MGMT_IP=$(ip a show dev eth1 | awk '/inet / {print $2}' | cut -d '/' -f 1)
 export ADMIN_TENANT_NAME='admin'
 export ADMIN_USER_NAME='admin'
 export ADMIN_USER_PASSWORD='admin'

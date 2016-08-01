@@ -1,14 +1,15 @@
 #!/bin/bash
 
+MGMT_IP=$1
+OPENSTACK_VERSION=$2
+PUBLIC_URL="http://${MGMT_IP}:8774/v2/%(tenant_id)s"
+INTERNAL_URL=${PUBLIC_URL}
+NOVA_CFG='/etc/nova/nova.conf'
+
 source /vagrant/provision/logger.sh
 source /vagrant/provision/functions.sh
 source /vagrant/provision/vars.sh
 source /home/vagrant/openrc_admin
-
-OPENSTACK_VERSION=$1
-PUBLIC_URL="http://${MGMT_IP}:8774/v2/%(tenant_id)s"
-INTERNAL_URL=${PUBLIC_URL}
-NOVA_CFG='/etc/nova/nova.conf'
 
 debug "Installing nova services ..."
 

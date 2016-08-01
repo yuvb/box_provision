@@ -1,10 +1,6 @@
 #!/bin/bash
 
-source /vagrant/provision/logger.sh
-source /vagrant/provision/functions.sh
-source /vagrant/provision/vars.sh
-source /home/vagrant/openrc_admin
-
+MGMT_IP=$1
 PUBLIC_URL="http://${MGMT_IP}:9696"
 INTERNAL_URL=${PUBLIC_URL}
 NETWORK_SERVICE='quantum'
@@ -14,6 +10,11 @@ METADATA_CFG='/etc/quantum/metadata_agent.ini'
 QUANTUM_CFG='/etc/quantum/quantum.conf'
 L3_AGENT_CFG='/etc/quantum/l3_agent.ini'
 DHCP_AGENT_CFG='/etc/quantum/dhcp_agent.ini'
+
+source /vagrant/provision/logger.sh
+source /vagrant/provision/functions.sh
+source /vagrant/provision/vars.sh
+source /home/vagrant/openrc_admin
 
 debug "Installing ${NETWORK_SERVICE} services ..."
 

@@ -1,12 +1,14 @@
 #!/bin/bash
 
+MGMT_IP=$1
+OPENSTACK_VERSION=$2
+MONIT_CFG='/etc/monit/monitrc'
+CHECK_SERVICE='nova-api'
+
 source /vagrant/provision/logger.sh
 source /vagrant/provision/functions.sh
 source /vagrant/provision/vars.sh
 
-OPENSTACK_VERSION=$1
-MONIT_CFG='/etc/monit/monitrc'
-CHECK_SERVICE='nova-api'
 debug "Prepearing monit service ..."
 
 apt-get install -y monit

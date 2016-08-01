@@ -1,13 +1,14 @@
 #!/bin/bash
 
-source /vagrant/provision/logger.sh
-source /vagrant/provision/functions.sh
-source /vagrant/provision/vars.sh
-
-OPENSTACK_VERSION=$1
+MGMT_IP=$1
+OPENSTACK_VERSION=$2
 PUBLIC_URL="http://${MGMT_IP}:5000/v2.0"
 INTERNAL_URL="http://${MGMT_IP}:35357/v2.0"
 KEYSTONE_CFG='/etc/keystone/keystone.conf'
+
+source /vagrant/provision/logger.sh
+source /vagrant/provision/functions.sh
+source /vagrant/provision/vars.sh
 
 debug "Installing keystone service ..."
 
