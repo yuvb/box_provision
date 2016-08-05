@@ -88,17 +88,10 @@ restart_service cinder
 wait_http_available cinder "http://${MGMT_IP}:8776"
 
 info "Cheking cinder services"
-if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
-then
-  for service in ${cinder_services}
-  do
-    service $service status | tee -a ${SCRIPT_LOG}
-  done
-else
-  #Should be 3 cinder services: cinder-scheduler and 2 cinder-volume
-  check_openstack_services cinder 3
-  cinder service-list | tee -a ${SCRIPT_LOG}
-fi
+for service in ${cinder_services}
+do
+  service $service status | tee -a ${SCRIPT_LOG}
+done
 
 debug "Cinder services have been installed and has been configured"
 

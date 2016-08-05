@@ -65,5 +65,5 @@ fi
 
 info "Waiting for servise ${CHECK_SERVICE} running"
 
-checker "service ${CHECK_SERVICE} status | grep running" ${CHECK_SERVICE} 3
+checker "service ${CHECK_SERVICE} status | grep running" ${CHECK_SERVICE} 5
 

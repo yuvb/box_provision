@@ -63,7 +63,8 @@ Vagrant.configure(2) do |config|
           thisnode.vm.provision 'shell', path: './provision/keystone.sh', args: [nodedata[:ip1], nodedata[:release]]
           thisnode.vm.provision 'shell', path: './provision/glance.sh', args: [nodedata[:ip1], nodedata[:release]]
           thisnode.vm.provision 'shell', path: './provision/nova.sh', args: [nodedata[:ip1], nodedata[:release]]
-          thisnode.vm.provision 'shell', path: './provision/cinder.sh', args: [nodedata[:ip1], nodedata[:release], nodes[:nfs][:ip1]]
+          thisnode.vm.provision 'shell', path: './provision/cinder.sh', args: [nodedata[:ip1], nodedata[:release],
+                                                                               nodes[:nfs][:ip1]]
           thisnode.vm.provision 'shell', path: './provision/horizon.sh'
           if nodedata[:release] == 'grizzly'
             thisnode.vm.provision 'shell', path: './provision/quantum.sh', args: nodedata[:ip1]
@@ -81,6 +82,8 @@ Vagrant.configure(2) do |config|
         v.memory = nodedata[:memory]
         v.cpus = nodedata[:cpus]
         v.customize ['modifyvm', :id, '--cpuexecutioncap', '90']
+        v.customize ['modifyvm', :id, '--nicpromisc2', 'allow-all']
+        v.customize ['modifyvm', :id, '--nicpromisc3', 'allow-all']
       end
     end
   end
