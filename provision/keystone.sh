@@ -41,27 +41,27 @@ rm -rf /var/lib/keystone/keystone.db
 echo '@hourly /usr/bin/keystone-manage token_flush >/var/log/keystone/keystone-tokenflush.log 2>&1' | \
      tee -a /var/spool/cron/crontabs/keystone
 
-wait_http_available keystone ${INTERNAL_URL}
+wait_http_available keystone "${INTERNAL_URL}"
 
 # Tenants
 ADMIN_TENANT=$(get_id keystone tenant-create --name=admin)
-SERVICE_TENANT=$(get_id keystone tenant-create --name=${SERVICE_TENANT_NAME})
+SERVICE_TENANT=$(get_id keystone tenant-create --name="${SERVICE_TENANT_NAME}")
 
 # Users
-ADMIN_USER=$(get_id keystone user-create --name=${ADMIN_USER_NAME} --pass=${ADMIN_USER_PASSWORD} \
-              --email=${ADMIN_USER_NAME}@domain.com)
-SERVICE_USER=$(get_id keystone user-create --name=${SERVICE_USER_NAME} --tenant-id=${SERVICE_TENANT} \
-              --pass=${SERVICE_USER_PASSWORD} --email=${SERVICE_USER_NAME}@domain.com)
+ADMIN_USER=$(get_id keystone user-create --name="${ADMIN_USER_NAME}" --pass="${ADMIN_USER_PASSWORD}" \
+              --email="${ADMIN_USER_NAME}@domain.com")
+SERVICE_USER=$(get_id keystone user-create --name="${SERVICE_USER_NAME}" --tenant-id="${SERVICE_TENANT}" \
+              --pass="${SERVICE_USER_PASSWORD}" --email="${SERVICE_USER_NAME}@domain.com")
 
 # Roles
-ADMIN_ROLE=$(get_id keystone role-create --name=${ADMIN_USER_NAME})
+ADMIN_ROLE=$(get_id keystone role-create --name="${ADMIN_USER_NAME}")
 
 # Add Roles to Users in Tenants
-keystone user-role-add --user-id ${ADMIN_USER} --role-id ${ADMIN_ROLE} --tenant-id ${ADMIN_TENANT}
-keystone user-role-add --user-id ${SERVICE_USER} --role-id ${ADMIN_ROLE} --tenant-id ${SERVICE_TENANT}
+keystone user-role-add --user-id "${ADMIN_USER}" --role-id "${ADMIN_ROLE}" --tenant-id "${ADMIN_TENANT}"
+keystone user-role-add --user-id "${SERVICE_USER}" --role-id "${ADMIN_ROLE}" --tenant-id "${SERVICE_TENANT}"
 
 # Create service and endpoint
-create_service keystone identity "OpenStack Identity" ${PUBLIC_URL} ${INTERNAL_URL}
+create_service keystone identity "OpenStack Identity" "${PUBLIC_URL}" "${INTERNAL_URL}"
 
 # Openrc file
 info "Creating admin openrc file"

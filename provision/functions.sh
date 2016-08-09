@@ -8,7 +8,7 @@ function create_db(){
   local grant_user=${DB_USER}
   info "Creating db ${db_name}"
   mysql -e "create database ${db_name};"
-  local check_db=$(mysql -e "show databases;" | awk -v db_name=$db_name '$0 ~ db_name {print $1}')
+  local check_db=$(mysql -e "show databases;" | awk -v db_name="${db_name}" '$0 ~ db_name {print $1}')
   if [[ ${check_db} == "${db_name}" ]]
   then
     info "DB ${db_name} has been created successfully"
@@ -41,8 +41,8 @@ function create_service(){
 
   # Create servises
   info "Creating service ${name}"
-  keystone service-create --name ${name} --type ${type} --description "${description}"
-  service_id=$(get_id keystone service-get ${name})
+  keystone service-create --name "${name}" --type "${type}" --description "${description}"
+  service_id=$(get_id keystone service-get "${name}")
 
   if [[ -n ${service_id} ]]
   then
@@ -51,9 +51,9 @@ function create_service(){
     error "Service ${name} hasn't been created"
   fi
 
-  keystone endpoint-create --region integration --service-id ${service_id} --publicurl=${public_url} \
-                           --adminurl ${internal_url} --internalurl ${internal_url}
-  endpoint=$(keystone endpoint-list | awk -v service_id=$service_id '$0 ~ service_id {print $2}')
+  keystone endpoint-create --region integration --service-id "${service_id}" --publicurl="${public_url}" \
+                           --adminurl "${internal_url}" --internalurl "${internal_url}"
+  endpoint=$(keystone endpoint-list | awk -v service_id="${service_id}" '$0 ~ service_id {print $2}')
   if [[ -n ${endpoint} ]]
   then
     info "Endpoint ${name} has been created successfully with id ${endpoint}"
@@ -66,13 +66,13 @@ function setup_keystone_authentication(){
   local config_file=$1
   local admin_user=$2
   local section=${3:-keystone_authtoken}
-  crudini --set ${config_file} ${section} auth_uri "http://${MGMT_IP}:35357/v2.0"
-  crudini --set ${config_file} ${section} auth_host ${MGMT_IP}
-  crudini --set ${config_file} ${section} auth_port 35357
-  crudini --set ${config_file} ${section} auth_protocol http
-  crudini --set ${config_file} ${section} admin_tenant_name ${SERVICE_TENANT_NAME}
-  crudini --set ${config_file} ${section} admin_user ${admin_user}
-  crudini --set ${config_file} ${section} admin_password ${SERVICE_USER_PASSWORD}
+  crudini --set "${config_file}" "${section}" auth_uri "http://${MGMT_IP}:35357/v2.0"
+  crudini --set "${config_file}" "${section}" auth_host "${MGMT_IP}"
+  crudini --set "${config_file}" "${section}" auth_port 35357
+  crudini --set "${config_file}" "${section}" auth_protocol http
+  crudini --set "${config_file}" "${section}" admin_tenant_name "${SERVICE_TENANT_NAME}"
+  crudini --set "${config_file}" "${section}" admin_user "${admin_user}"
+  crudini --set "${config_file}" "${section}" admin_password "${SERVICE_USER_PASSWORD}"
 }
 
 function prepare_network_host(){
@@ -104,10 +104,10 @@ EOF
 
   info "Creating openvswitch bridges"
   restart_service openvswitch-switch
-  ovs-vsctl add-br ${br_ex1}
-  ovs-vsctl add-port ${br_ex1} eth1
-  ovs-vsctl add-br ${br_ex2}
-  ovs-vsctl add-port ${br_ex2} eth2
+  ovs-vsctl add-br "${br_ex1}"
+  ovs-vsctl add-port "${br_ex1}" eth1
+  ovs-vsctl add-br "${br_ex2}"
+  ovs-vsctl add-port "${br_ex2}" eth2
 
   if [[ ${NETWORK_SERVICE} == quantum ]]
   then
@@ -147,19 +147,19 @@ EOF
 
   info "Activating ovs bridges"
   bridges=$(awk '{ if ($1 == "allow-ovs") { print $2; } }' ${interface_cfg})
-  ifup --allow=ovs ${bridges}
+  ifup --allow=ovs "${bridges}"
 
   info "Restarting network interfaces"
   ifdown eth1 eth2 && ifup eth1 eth2
   ip neigh flush all
 
-  restart_service ${NETWORK_SERVICE}
+  restart_service "${NETWORK_SERVICE}"
 }
 
 function wait_http_available(){
   local service=$1
   local url=$2
-  checker "(curl --output /dev/null --silent --head --fail ${url})" ${service} 1
+  checker "(curl --output /dev/null --silent --head --fail ${url})" "${service}" 1
 }
 
 function checker(){
@@ -170,7 +170,7 @@ function checker(){
   local i=0
   while [[ $i -lt ${timeout} ]]
   do
-    echo ${check_cmd} | bash
+    echo "${check_cmd}" | bash
     if [[ $? == 0 ]]
     then
       info "Service ${service} is running"
@@ -181,7 +181,7 @@ function checker(){
       error "Service ${service} isn't running"
       exit 104
     fi
-    sleep ${time_sleep}
+    sleep "${time_sleep}"
     let "i++"
   done
 }
@@ -192,16 +192,16 @@ function restart_service(){
   local services=''
   if [[ ${openstack_services} =~ ${service} ]]
   then
-    services=$(initctl list | grep ${service} | awk '{print $1}')
+    services=$(initctl list | grep "${service}" | awk '{print $1}')
   else
     services=${service}
   fi
   for current_service in ${services}
   do
     info "Restarting service ${current_service}"
-    service ${current_service} restart
+    service "${current_service}" restart
     info "Checking service ${current_service} status"
-    checker "service ${current_service} status | grep running" ${current_service} 1
+    checker "service ${current_service} status | grep running" "${current_service}" 1
   done
   info "Service ${service} has been restarted successfully"
 }
@@ -245,6 +245,7 @@ function check_openstack_services(){
 
 function create_monit_script(){
   local service=$1
+  local mgmt_ip=$2
   local script_folder='/etc/monit/scripts'
   local api_service='glance-api nova-api cinder-api keystone quantum-server neutron-server'
   local protocol='HTTP'
@@ -260,28 +261,28 @@ function create_monit_script(){
     info "Folder ${script_folder} has been already created"
   fi
 
-  info "Creating the monit config file "${script_folder}/check_${service}.sh""
+  info "Creating the monit config file "${script_folder}/"check_${service}.sh"""
   if [[ ${api_service} =~ ${service} ]]
   then
     case $service in
     nova-api)
-      api_url="http://${MGMT_IP}:8774/"
+      api_url="http://${mgmt_ip}:8774/"
       ;;
     glance-api)
-      api_url="http://${MGMT_IP}:9292/"
+      api_url="http://${mgmt_ip}:9292/"
       status_code='300'
       ;;
     cinder-api)
-      api_url="http://${MGMT_IP}:8776/"
+      api_url="http://${mgmt_ip}:8776/"
       ;;
     keystone)
-      api_url="http://${MGMT_IP}:35357/v2.0/"
+      api_url="http://${mgmt_ip}:35357/v2.0/"
       ;;
     quantum-server)
-      api_url="http://${MGMT_IP}:9696/"
+      api_url="http://${mgmt_ip}:9696/"
       ;;
     neutron-server)
-      api_url="http://${MGMT_IP}:9696/"
+      api_url="http://${mgmt_ip}:9696/"
       ;;
     esac
 
@@ -294,7 +295,7 @@ protocol='HTTP'
 EOF
 
 cat<< \EOF >>"${script_folder}/check_${service}.sh"
-check_code=$(curl -s -i ${api_url} | awk -v protocol=${protocol} '$0 ~ protocol {print $2}')
+check_code=$(curl -s -i "${api_url}" | awk -v protocol="${protocol}" '$0 ~ protocol {print $2}')
 if [[ ${check_code} == ${status_code} ]]
 then
   exit 0
@@ -314,9 +315,9 @@ EOF
 
   if [[ -s "${script_folder}/check_${service}.sh" ]]
   then
-    info "The monit config file "${script_folder}/check_${service}.sh" has been created successfully"
+    info "The monit config file "${script_folder}/"check_${service}.sh"" has been created successfully"
   else
-    error "The monit config file "${script_folder}/check_${service}.sh" hasn't been created"
+    error "The monit config file "${script_folder}/"check_${service}.sh"" hasn't been created"
   fi
   chmod 755 "${script_folder}/check_${service}.sh"
 }

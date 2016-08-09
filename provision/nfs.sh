@@ -52,7 +52,7 @@ info "Running the nfs server"
 service nfs-kernel-server start
 
 # check nfs shares
-count_nfs_shares=$(showmount -e ${MGMT_IP} | sed '1d' | wc -l)
+count_nfs_shares=$(showmount -e "${MGMT_IP}" | sed '1d' | wc -l)
 if [[ ${count_nfs_shares} == 9 ]]
 then
   info "NFS shares have been created successfully"

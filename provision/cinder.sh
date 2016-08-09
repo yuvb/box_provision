@@ -23,10 +23,10 @@ then
   apt-get install -y iscsitarget open-iscsi iscsitarget-dkms
 
   # /etc/cinder/api-paste.ini
-  setup_keystone_authentication ${PASTE_CFG} ${SERVICE_USER_NAME} 'filter:authtoken'
+  setup_keystone_authentication ${PASTE_CFG} "${SERVICE_USER_NAME}" 'filter:authtoken'
   crudini --set ${PASTE_CFG} filter:authtoken paste.filter_factory keystone.middleware.auth_token:filter_factory
   crudini --set ${PASTE_CFG} filter:authtoken service_protocol http
-  crudini --set ${PASTE_CFG} filter:authtoken service_host ${MGMT_IP}
+  crudini --set ${PASTE_CFG} filter:authtoken service_host "${MGMT_IP}"
   crudini --set ${PASTE_CFG} filter:authtoken service_port 5000
   crudini --set ${PASTE_CFG} filter:authtoken signing_dir /var/lib/cinder
 
@@ -36,18 +36,18 @@ else
   PUBLIC_URL="http://${MGMT_IP}:8776/v1/%(tenant_id)s"
   INTERNAL_URL=${PUBLIC_URL}
   crudini --set ${CINDER_CFG} database connection "mysql://${DB_USER}:${DB_PASSWORD}@${MGMT_IP}/cinder"
-  setup_keystone_authentication ${CINDER_CFG} ${SERVICE_USER_NAME}
+  setup_keystone_authentication ${CINDER_CFG} "${SERVICE_USER_NAME}"
   crudini --set ${CINDER_CFG} DEFAULT rpc_backend rabbit
-  crudini --set ${CINDER_CFG} DEFAULT rabbit_host ${MGMT_IP}
+  crudini --set ${CINDER_CFG} DEFAULT rabbit_host "${MGMT_IP}"
   crudini --set ${CINDER_CFG} DEFAULT rabbit_port 5672
-  crudini --set ${CINDER_CFG} DEFAULT my_ip ${MGMT_IP}
-  crudini --set ${CINDER_CFG} DEFAULT glance_host ${MGMT_IP}
+  crudini --set ${CINDER_CFG} DEFAULT my_ip "${MGMT_IP}"
+  crudini --set ${CINDER_CFG} DEFAULT glance_host "${MGMT_IP}"
 fi
 
 create_db cinder
 
 # Create service and endpoint
-create_service cinder volume "OpenStack Volume Service" ${PUBLIC_URL} ${INTERNAL_URL}
+create_service cinder volume "OpenStack Volume Service" "${PUBLIC_URL}" "${INTERNAL_URL}"
 
 info "Modifying iscsi settings"
 # ISCSI
@@ -90,7 +90,7 @@ wait_http_available cinder "http://${MGMT_IP}:8776"
 info "Cheking cinder services"
 for service in ${cinder_services}
 do
-  service $service status | tee -a ${SCRIPT_LOG}
+  service "${service}" status | tee -a "${SCRIPT_LOG}"
 done
 
 debug "Cinder services have been installed and has been configured"

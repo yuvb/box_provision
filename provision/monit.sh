@@ -42,8 +42,8 @@ for openstack_services in ${NETWORK_SERVICE} nova cinder glance keystone
 do
   for service in $(initctl list | grep ${openstack_services} | awk '{print $1}')
   do
-    create_monit_script ${service}
-    add_service_to_monit ${service}
+    create_monit_script "${service}" "${MGMT_IP}"
+    add_service_to_monit "${service}"
   done
 done
 
@@ -65,5 +65,5 @@ fi
 
 info "Waiting for servise ${CHECK_SERVICE} running"
 
-checker "service ${CHECK_SERVICE} status | grep running" ${CHECK_SERVICE} 5
+checker "service ${CHECK_SERVICE} status | grep running" ${CHECK_SERVICE} 10
 

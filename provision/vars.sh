@@ -2,8 +2,8 @@
 
 PASSWORD='secret'
 OS_SERVICE_TOKEN="${PASSWORD}"
-SUPPORT_OPENSTACK_VERSIONS='icehouse juno'
 
+export SUPPORT_OPENSTACK_VERSIONS='icehouse juno'
 export DB_PASSWORD="${PASSWORD}"
 export DB_USER='root'
 export UBUNTU_VERSION=$(lsb_release -a | awk '/Release/ {print $2}')

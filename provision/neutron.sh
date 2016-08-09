@@ -27,18 +27,18 @@ crudini --set ${NEUTRON_CFG} DEFAULT rpc_backend rabbit
 crudini --set ${NEUTRON_CFG} DEFAULT core_plugin ml2
 crudini --set ${NEUTRON_CFG} DEFAULT service_plugins router,lbaas
 crudini --set ${NEUTRON_CFG} DEFAULT rpc_backend neutron.openstack.common.rpc.impl_kombu
-crudini --set ${NEUTRON_CFG} DEFAULT rabbit_host ${MGMT_IP}
+crudini --set ${NEUTRON_CFG} DEFAULT rabbit_host "${MGMT_IP}"
 crudini --set ${NEUTRON_CFG} DEFAULT allow_overlapping_ips True
 crudini --set ${NEUTRON_CFG} DEFAULT notification_driver neutron.openstack.common.notifier.rpc_notifier
 crudini --set ${NEUTRON_CFG} DEFAULT notify_nova_on_port_status_changes True
 crudini --set ${NEUTRON_CFG} DEFAULT notify_nova_on_port_data_changes True
-crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_username ${SERVICE_USER_NAME}
+crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_username "${SERVICE_USER_NAME}"
 crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_tenant_id "$(get_id keystone tenant-get service)"
-crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_password ${SERVICE_USER_PASSWORD}
+crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_password "${SERVICE_USER_PASSWORD}"
 crudini --set ${NEUTRON_CFG} DEFAULT nova_admin_auth_url "http://${MGMT_IP}:35357/v2.0"
 crudini --set ${NEUTRON_CFG} DEFAULT nova_region_name "${OS_REGION_NAME}"
 
-setup_keystone_authentication ${NEUTRON_CFG} ${SERVICE_USER_NAME}
+setup_keystone_authentication ${NEUTRON_CFG} "${SERVICE_USER_NAME}"
 
 crudini --set ${NEUTRON_CFG} database connection "mysql://${DB_USER}:${DB_PASSWORD}@${MGMT_IP}/${NETWORK_SERVICE}"
 
@@ -53,10 +53,10 @@ crudini --set ${ML2_CFG} ml2_type_flat flat_networks '*'
 crudini --set ${ML2_CFG} securitygroup firewall_driver neutron.agent.linux.iptables_firewall.OVSHybridIptablesFirewallDriver
 crudini --set ${ML2_CFG} securitygroup enable_security_group True
 
-crudini --set ${ML2_CFG} ovs local_ip ${MGMT_IP}
+crudini --set ${ML2_CFG} ovs local_ip "${MGMT_IP}"
 crudini --set ${ML2_CFG} ovs tunnel_type gre
 crudini --set ${ML2_CFG} ovs enable_tunneling True
-crudini --set ${ML2_CFG} ovs bridge_mappings physnet1:${BR_EX1},physnet2:${BR_EX2}
+crudini --set ${ML2_CFG} ovs bridge_mappings "physnet1:${BR_EX1},physnet2:${BR_EX2}"
 crudini --set ${ML2_CFG} ml2_type_gre tunnel_id_ranges 1:1000
 
 crudini --set ${L3_AGENT_CFG} DEFAULT interface_driver neutron.agent.linux.interface.OVSInterfaceDriver
@@ -68,15 +68,15 @@ crudini --set ${DHCP_AGENT_CFG} DEFAULT interface_driver neutron.agent.linux.int
 crudini --set ${DHCP_AGENT_CFG} DEFAULT dhcp_driver neutron.agent.linux.dhcp.Dnsmasq
 crudini --set ${DHCP_AGENT_CFG} DEFAULT use_namespaces True
 
-crudini --set ${METADATA_CFG} DEFAULT auth_url http://${MGMT_IP}:5000/v2.0
+crudini --set ${METADATA_CFG} DEFAULT auth_url "http://${MGMT_IP}:5000/v2.0"
 crudini --set ${METADATA_CFG} DEFAULT auth_region "${OS_REGION_NAME}"
 
 crudini --set ${METADATA_CFG} DEFAULT admin_tenant_name service
-crudini --set ${METADATA_CFG} DEFAULT admin_user ${SERVICE_USER_NAME}
-crudini --set ${METADATA_CFG} DEFAULT admin_password ${SERVICE_USER_PASSWORD}
-crudini --set ${METADATA_CFG} DEFAULT nova_metadata_ip ${MGMT_IP}
+crudini --set ${METADATA_CFG} DEFAULT admin_user "${SERVICE_USER_NAME}"
+crudini --set ${METADATA_CFG} DEFAULT admin_password "${SERVICE_USER_PASSWORD}"
+crudini --set ${METADATA_CFG} DEFAULT nova_metadata_ip "${MGMT_IP}"
 crudini --set ${METADATA_CFG} DEFAULT nova_metadata_port 8775
-crudini --set ${METADATA_CFG} DEFAULT metadata_proxy_shared_secret ${METADATA_PROXY_SHARED_SECRET}
+crudini --set ${METADATA_CFG} DEFAULT metadata_proxy_shared_secret "${METADATA_PROXY_SHARED_SECRET}"
 
 if [[ ${OPENSTACK_VERSION} == 'juno' ]]
 then
@@ -94,11 +94,11 @@ then
 fi
 
 # Create service and endpoint
-create_service ${NETWORK_SERVICE} network "OpenStack Networking service" ${PUBLIC_URL} ${INTERNAL_URL}
+create_service "${NETWORK_SERVICE}" network "OpenStack Networking service" "${PUBLIC_URL}" "${INTERNAL_URL}"
 
-prepare_network_host ${BR_EX1} ${BR_EX2}
+prepare_network_host "${BR_EX1}" "${BR_EX2}"
 
-wait_http_available ${NETWORK_SERVICE} ${INTERNAL_URL}
+wait_http_available "${NETWORK_SERVICE}" "${INTERNAL_URL}"
 
 if [[ ${OPENSTACK_VERSION} == 'juno' ]]
 then
@@ -110,7 +110,7 @@ else
 fi
 
 info "Checking agents status ..."
-${NETWORK_SERVICE} agent-list | tee -a ${SCRIPT_LOG}
+"${NETWORK_SERVICE}" agent-list | tee -a "${SCRIPT_LOG}"
 
 debug "${NETWORK_SERVICE} has been installed and has been configured"
 

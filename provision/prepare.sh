@@ -39,7 +39,7 @@ then
   info "Redy to install openstack grizzly"
 elif [[ (${SUPPORT_OPENSTACK_VERSIONS} =~ ${OPENSTACK_VERSION}) && (${UBUNTU_VERSION} == '14.04') ]]
 then
-  add-apt-repository cloud-archive:${OPENSTACK_VERSION}
+  add-apt-repository "cloud-archive:${OPENSTACK_VERSION}"
   apt-get install -y crudini
 fi
 
@@ -49,7 +49,7 @@ apt-get -y dist-upgrade
 apt-get install -y mysql-server python-mysqldb
 
 info "Preparing mysql changing listen address and rebooting"
-mysqladmin -u ${DB_USER} password ${DB_PASSWORD}
+mysqladmin -u "${DB_USER}" password "${DB_PASSWORD}"
 augtool << EOF
 set /files/etc/mysql/my.cnf/target[. = 'client']/user ${DB_USER}
 set /files/etc/mysql/my.cnf/target[. = 'client']/password ${DB_PASSWORD}
@@ -61,7 +61,7 @@ set /files/etc/mysql/my.cnf/target[. = 'mysqld']/init-connect '\'SET NAMES utf8\
 set /files/etc/mysql/my.cnf/target[. = 'mysqld']/character-set-server utf8
 save
 EOF
-mysql -u ${DB_USER} -p${DB_PASSWORD} -e "DELETE FROM user WHERE user = 'root' AND host <> '%' AND host <> 'localhost';" mysql
+mysql -u "${DB_USER}" -p"${DB_PASSWORD}" -e "DELETE FROM user WHERE user = 'root' AND host <> '%' AND host <> 'localhost';" mysql
 
 restart_service mysql
 

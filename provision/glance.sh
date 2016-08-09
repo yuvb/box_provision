@@ -16,7 +16,7 @@ source /home/vagrant/openrc_admin
 create_db glance
 
 # Create service and endpoint
-create_service glance image "OpenStack Image Service" ${PUBLIC_URL} ${INTERNAL_URL}
+create_service glance image "OpenStack Image Service" "${PUBLIC_URL}" "${INTERNAL_URL}"
 
 apt-get install -y glance python-glanceclient
 
@@ -32,7 +32,7 @@ do
   crudini --set ${config_file} DEFAULT debug True
   crudini --set ${config_file} DEFAULT verbose True
   crudini --set ${config_file} paste_deploy flavor keystone
-  setup_keystone_authentication ${config_file} ${SERVICE_USER_NAME}
+  setup_keystone_authentication ${config_file} "${SERVICE_USER_NAME}"
 done
 
 crudini --set ${API_CFG} DEFAULT rabbit_host "${MGMT_IP}"
@@ -44,13 +44,13 @@ glance-manage db_sync
 
 restart_service glance
 
-wait_http_available glance ${PUBLIC_URL}
+wait_http_available glance "${PUBLIC_URL}"
 
 rm -f /var/lib/glance/glance.sqlite
 
 # Upload images
 glance_image_id=$(get_id glance image-create --name ${IMAGE_NAME} --file "/vagrant/images/${IMAGE_NAME}.img" --disk-format qcow2 --container-format bare --is-public True)
-result=$(glance image-list | awk -v image_id=${glance_image_id} '$0 ~ image_id {print $12}')
+result=$(glance image-list | awk -v image_id="${glance_image_id}" '$0 ~ image_id {print $12}')
 if [[ ${result} == 'active' ]]
 then
   info "Image ${name} has been uploaded to glance with Id ${glance_image_id}"
