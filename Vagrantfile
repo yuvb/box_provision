@@ -75,7 +75,7 @@ Vagrant.configure(2) do |config|
           thisnode.vm.provision 'shell', path: './provision/monit.sh', args: [nodedata[:ip1], nodedata[:release]]
 
         when :nfs
-          thisnode.vm.provision 'shell', path: './provision/nfs.sh'
+          thisnode.vm.provision 'shell', path: './provision/nfs.sh', args: nodedata[:ip1]
       end
 
       thisnode.vm.provider 'virtualbox' do |v|
