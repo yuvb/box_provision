@@ -9,7 +9,7 @@ function create_db(){
   info "Creating db ${db_name}"
   mysql -e "create database ${db_name};"
   local check_db=$(mysql -e "show databases;" | awk -v db_name="${db_name}" '$0 ~ db_name {print $1}')
-  if [[ ${check_db} == "${db_name}" ]]
+  if [[ "${check_db}" == "${db_name}" ]]
   then
     info "DB ${db_name} has been created successfully"
   else
@@ -29,7 +29,8 @@ EOF
 }
 
 function get_id (){
-  echo "$("$@" | awk '/ id / { print $4 }')"
+  # shellcheck disable=SC2068
+  $@ | awk '/ id / { print $4 }'
 }
 
 function create_service(){
@@ -44,7 +45,7 @@ function create_service(){
   keystone service-create --name "${name}" --type "${type}" --description "${description}"
   service_id=$(get_id keystone service-get "${name}")
 
-  if [[ -n ${service_id} ]]
+  if [[ -n "${service_id}" ]]
   then
     info "Service ${name} has been created successfully"
   else
@@ -109,11 +110,6 @@ EOF
   ovs-vsctl add-br "${br_ex2}"
   ovs-vsctl add-port "${br_ex2}" eth2
 
-  if [[ ${NETWORK_SERVICE} == quantum ]]
-  then
-    ovs-vsctl add-br br-int
-  fi
-
   for index in 1 2
   do
     ethtool -K eth${index} gro off tso off sg off
@@ -126,7 +122,7 @@ iface eth${index} inet manual
 EOF
   done
 
-cat << EOF >> /etc/network/interfaces
+cat << EOF >> ${interface_cfg}
 
 allow-ovs ${br_ex1}
 iface ${br_ex1} inet static
@@ -145,9 +141,16 @@ iface ${br_ex2} inet static
     down ip link set \$IFACE promisc off
 EOF
 
+  if [[ "${NETWORK_SERVICE}" == "quantum" ]]
+  then
+    ovs-vsctl add-br br-int
+  else
+    echo "post-up ovs-vsctl add-port ${br_ex1} eth1" >> ${interface_cfg}
+    echo "post-up ovs-vsctl add-port ${br_ex2} eth2" >> ${interface_cfg}
+  fi
+
   info "Activating ovs bridges"
-  bridges=$(awk '{ if ($1 == "allow-ovs") { print $2; } }' ${interface_cfg})
-  ifup --allow=ovs "${bridges}"
+  sh /etc/rc.local
 
   info "Restarting network interfaces"
   ifdown eth1 eth2 && ifup eth1 eth2
@@ -166,7 +169,7 @@ function checker(){
   local check_cmd=$1
   local service=$2
   local time_sleep=$3
-  local timeout=30
+  local timeout=120
   local i=0
   while [[ $i -lt ${timeout} ]]
   do
@@ -192,16 +195,16 @@ function restart_service(){
   local services=''
   if [[ ${openstack_services} =~ ${service} ]]
   then
-    services=$(initctl list | grep "${service}" | awk '{print $1}')
+    services=($(initctl list | grep "${service}" | awk '{print $1}'))
   else
-    services=${service}
+    services=("${service}")
   fi
-  for current_service in ${services}
+  for current_service in "${services[@]}"
   do
     info "Restarting service ${current_service}"
-    service "${current_service}" restart
+    service ${current_service} restart
     info "Checking service ${current_service} status"
-    checker "service ${current_service} status | grep running" "${current_service}" 1
+    checker "service ${current_service} status | grep running" ${current_service} 1
   done
   info "Service ${service} has been restarted successfully"
 }
@@ -245,7 +248,6 @@ function check_openstack_services(){
 
 function create_monit_script(){
   local service=$1
-  local mgmt_ip=$2
   local script_folder='/etc/monit/scripts'
   local api_service='glance-api nova-api cinder-api keystone quantum-server neutron-server'
   local protocol='HTTP'
@@ -261,28 +263,28 @@ function create_monit_script(){
     info "Folder ${script_folder} has been already created"
   fi
 
-  info "Creating the monit config file "${script_folder}/"check_${service}.sh"""
+  info "Creating the monit config file ${script_folder}/check_${service}.sh"
   if [[ ${api_service} =~ ${service} ]]
   then
     case $service in
     nova-api)
-      api_url="http://${mgmt_ip}:8774/"
+      api_url="http://${MGMT_IP}:8774/"
       ;;
     glance-api)
-      api_url="http://${mgmt_ip}:9292/"
+      api_url="http://${MGMT_IP}:9292/"
       status_code='300'
       ;;
     cinder-api)
-      api_url="http://${mgmt_ip}:8776/"
+      api_url="http://${MGMT_IP}:8776/"
       ;;
     keystone)
-      api_url="http://${mgmt_ip}:35357/v2.0/"
+      api_url="http://${MGMT_IP}:35357/v2.0/"
       ;;
     quantum-server)
-      api_url="http://${mgmt_ip}:9696/"
+      api_url="http://${MGMT_IP}:9696/"
       ;;
     neutron-server)
-      api_url="http://${mgmt_ip}:9696/"
+      api_url="http://${MGMT_IP}:9696/"
       ;;
     esac
 
@@ -315,9 +317,9 @@ EOF
 
   if [[ -s "${script_folder}/check_${service}.sh" ]]
   then
-    info "The monit config file "${script_folder}/"check_${service}.sh"" has been created successfully"
+    info "The monit config file ${script_folder}/check_${service}.sh has been created successfully"
   else
-    error "The monit config file "${script_folder}/"check_${service}.sh"" hasn't been created"
+    error "The monit config file ${script_folder}/check_${service}.sh hasn't been created"
   fi
   chmod 755 "${script_folder}/check_${service}.sh"
 }

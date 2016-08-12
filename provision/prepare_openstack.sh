@@ -22,6 +22,6 @@ ifdown eth1 eth2 && ifup eth1 eth2
 info "Restarting all openstack services"
 for service in keystone glance nova ${network_service} cinder
 do
-  restart_service ${service}
+  restart_service "${service}"
 done
 

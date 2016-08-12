@@ -69,12 +69,12 @@ cat<< EOF >>/home/vagrant/openrc_admin
 #!/bin/sh
 export LC_ALL=C
 export OS_NO_CACHE='true'
-export OS_TENANT_NAME=${ADMIN_TENANT_NAME}
-export OS_USERNAME=${ADMIN_USER_NAME}
-export OS_PASSWORD=${ADMIN_USER_PASSWORD}
-export OS_AUTH_URL=${OS_SERVICE_ENDPOINT}
+export OS_TENANT_NAME="${ADMIN_TENANT_NAME}"
+export OS_USERNAME="${ADMIN_USER_NAME}"
+export OS_PASSWORD="${ADMIN_USER_PASSWORD}"
+export OS_AUTH_URL="${OS_SERVICE_ENDPOINT}"
 export OS_SERVICE_ENDPOINT="http://${MGMT_IP}:35357/v2.0"
-export OS_SERVICE_TOKEN=${PASSWORD}
+export OS_SERVICE_TOKEN="${PASSWORD}"
 EOF
 
 debug "Keystone service has been installed and has been configured"

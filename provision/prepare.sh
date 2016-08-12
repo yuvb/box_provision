@@ -61,7 +61,7 @@ set /files/etc/mysql/my.cnf/target[. = 'mysqld']/init-connect '\'SET NAMES utf8\
 set /files/etc/mysql/my.cnf/target[. = 'mysqld']/character-set-server utf8
 save
 EOF
-mysql -u "${DB_USER}" -p"${DB_PASSWORD}" -e "DELETE FROM user WHERE user = 'root' AND host <> '%' AND host <> 'localhost';" mysql
+mysql -u "${DB_USER}" --password="${DB_PASSWORD}" -e "DELETE FROM user WHERE user = 'root' AND host <> '%' AND host <> 'localhost';" mysql
 
 restart_service mysql
 
@@ -69,7 +69,7 @@ apt-get install -y rabbitmq-server
 
 apt-get install -y ntp vim curl
 
-info "Redy to install openstack ${OPENSTACK_VERSION}"
+info "Ready to install openstack ${OPENSTACK_VERSION}"
 
 debug "Host is ready for installing openstack ${OPENSTACK_VERSION}"
 

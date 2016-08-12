@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
 MGMT_IP=$1
 OPENSTACK_VERSION=$2
 MONIT_CFG='/etc/monit/monitrc'
@@ -42,28 +43,28 @@ for openstack_services in ${NETWORK_SERVICE} nova cinder glance keystone
 do
   for service in $(initctl list | grep ${openstack_services} | awk '{print $1}')
   do
-    create_monit_script "${service}" "${MGMT_IP}"
+    create_monit_script "${service}"
     add_service_to_monit "${service}"
   done
 done
 
 for service in rabbitmq-server mysql apache2
 do
-  add_service_to_monit ${service}
+  add_service_to_monit "${service}"
 done
 
 restart_service monit
 
-status=$(initctl list | grep ${CHECK_SERVICE} | awk '{print $2}')
+status=$(initctl list | grep "${CHECK_SERVICE}" | awk '{print $2}')
 info "Now ${CHECK_SERVICE} service ${status}"
 
 if [[ ${status} =~ start ]]
 then
   info "Stopping ${CHECK_SERVICE}"
-  service ${CHECK_SERVICE} stop
+  service "${CHECK_SERVICE}" stop
 fi
 
 info "Waiting for servise ${CHECK_SERVICE} running"
 
-checker "service ${CHECK_SERVICE} status | grep running" ${CHECK_SERVICE} 10
+checker "service ${CHECK_SERVICE} status | grep running" "${CHECK_SERVICE}" 3
 

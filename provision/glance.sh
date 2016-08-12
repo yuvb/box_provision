@@ -20,7 +20,7 @@ create_service glance image "OpenStack Image Service" "${PUBLIC_URL}" "${INTERNA
 
 apt-get install -y glance python-glanceclient
 
-for config_file in ${API_CFG} ${REGISTRY_CFG}
+for config_file in "${API_CFG}" "${REGISTRY_CFG}"
 do
   if [[ ${OPENSTACK_VERSION} == 'grizzly' ]]
   then
@@ -32,7 +32,7 @@ do
   crudini --set ${config_file} DEFAULT debug True
   crudini --set ${config_file} DEFAULT verbose True
   crudini --set ${config_file} paste_deploy flavor keystone
-  setup_keystone_authentication ${config_file} "${SERVICE_USER_NAME}"
+  setup_keystone_authentication "${config_file}" "${SERVICE_USER_NAME}"
 done
 
 crudini --set ${API_CFG} DEFAULT rabbit_host "${MGMT_IP}"
